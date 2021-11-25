@@ -1,5 +1,8 @@
 # import sqlite3 library
 import sqlite3
+from flask import g
+
+from appl import app
 
 # define location of database
 db_location = 'var/issue_tracker.db'
