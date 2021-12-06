@@ -18,6 +18,11 @@ def submit():
     databaseOperations.new_project((6, "hush", 42))
     return "submit"
 
+@app.route('/edit')
+def edit():
+    databaseOperations.edit_project((1, "foo2: electric boogaloo", 2))
+    return redirect(url_for('view'))
+
 @app.route('/view')
 def view():
     page =[]

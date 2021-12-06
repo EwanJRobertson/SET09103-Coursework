@@ -1,8 +1,8 @@
 import sqlite3
 from database import get_db
 
-db = get_db()
-cursor = db.cursor()
+#db = get_db()
+#cursor = db.cursor()
 
 # create new user
 def new_user(options):
@@ -25,6 +25,8 @@ def get_projects(user_id):
 
 # create new project
 def new_project(options):
+    db = get_db()
+    cursor = db.cursor()
     cursor.execute("""
         INSERT INTO projects 
         VALUES(?, ?, ?)
@@ -35,12 +37,14 @@ def new_project(options):
 
 # get project indo
 def get_project_info(project_id):
+    db = get_db()
+    cursor = db.cursor()
     return cursor.execute("""
         SELECT * 
         FROM projects
         WHERE project_id == ?
         ;
-    """, options)
+    """, project_id)
 
 # get issues associated with project
 def get_project_issues(project_id):
@@ -50,20 +54,21 @@ def get_project_issues(project_id):
         WHERE project_id == ?
         ;
     """, options)
-    return None
 
 # edit existing project
 def edit_project(options):
+    db = get_db()
+    cursor = db.cursor()
     str = ""
     for row in cursor.execute("""
         SELECT *
         FROM projects
         WHERE project_id = ?
         ;
-    """, options):
+    """, [options[0]]):
         str = row
     
-    current = str[1, len(str) -2].split(", ")
+    current = str[1:len(str) -2].split(", ")
     new = []
     for option in options:
         if option != "":
@@ -72,19 +77,19 @@ def edit_project(options):
             new.append[current[len(new)]]
     
     cursor.execute("""
-        DELETE *
+        DELETE
         FROM projects
         WHERE project_id = ?
         ;
-    """, options)
-    cursor.commit()
+    """, [options[0]])
+    db.commit()
 
     cursor.execute("""
         INSERT INTO projects
         VALUES(?, ?, ?)
         ;
         """, options)
-    cursor.commit()
+    db.commit()
 
     return None
 
