@@ -16,8 +16,9 @@ def new_user(username, password_hash):
         FROM users
         ;
         """):
-        if row == username:
+        if row[2:len(row)-4] == username:
             return "Username already in use."
+            # ('Ewan',) 
 
     # insert new user into database
     cursor.execute("""
