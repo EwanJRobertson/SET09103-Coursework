@@ -25,18 +25,44 @@ def newproject():
 
 @app.route('/get_projects')
 def getprojects():
+    page = []
+    page.append('<html><ul>')
     for row in databaseOperations.get_projects("Ewan", ""):
-        print(row)
+        page.append('<li>')
+        page.append(row)
+        page.append('</li>')
+    page.append('</ul></html>')
+    return ''.join(page)
 
 @app.route('/get_project_info')
 def getprojectinfo():
+    page = []
+    page.append('<html><ul>')
     for row in databaseOperations.get_project_info(1, "Ewan"):
-        print(row)
+        page.append('<li>')
+        page.append(str(row[0]))
+        page.append(row[1])
+        page.append(row[2])
+        page.append('</li>')
+    page.append('</ul></html>')
+    return ''.join(page)
 
 @app.route('/get_project_users')
 def getprojectusers():
+    page = []
+    page.append("<html><ul>")
     for row in databaseOperations.get_project_users(1, "Ewan"):
-        print(row)
+        page.append("<li>")
+        page.append(row)
+        page.append("</li>")
+    page.append("</ul></html>")
+    #return databaseOperations.get_project_users(1, "Ewan")
+    return ''.join(page)
+
+@app.route('/assign_project')
+def assign():
+    return databaseOperations.assign_project("Ewan", 1)
+    #return "test"
     
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)

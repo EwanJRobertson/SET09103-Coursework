@@ -16,7 +16,7 @@ def new_user(username, password_hash):
         FROM users
         ;
         """):
-        if row[2:len(row)-4] == username:
+        if row[0] == username:
             return "Username already in use."
             # ('Ewan',) 
 
@@ -40,10 +40,10 @@ def get_projects(username, order):
 
     # execute query and return results
     return cursor.execute("""
-        SELECT project.project_id, project.title, project.version 
+        SELECT projects.project_id, projects.title, projects.version 
         FROM projects 
         JOIN users_projects_link 
-            ON projects.project_id = project_users_link.project_id
+            ON projects.project_id = users_projects_link.project_id
         WHERE username == ?
         ORDER BY ?
         ;
@@ -212,15 +212,17 @@ def assign_project(username, project_id):
         FROM users
         ;
         """):
-        if row == username:
+        if row[0] == username:
             valid = True
             break
     if not valid:
-        return None
+        return "1"
 
     # check project id is an integer
-    if not isinstance(project_id, int):
-        return None
+    try:
+        int(project_id)
+    except:
+        return "2"
 
     # check user is not already linked to project
     if cursor.execute("""
@@ -229,8 +231,8 @@ def assign_project(username, project_id):
         WHERE username == ?
             AND project_id == ?
         ;
-        """, [username, project_id]) is not None:
-        return None
+        """, [username, project_id]).rowcount() == 0:
+        return "3"
 
     # insert new link between user and project
     cursor.execute("""
@@ -239,6 +241,7 @@ def assign_project(username, project_id):
         ;
         """, [username, project_id])
     db.commit()
+    return "4"
 
 # leave project
 def leave_project(username, project_id):
