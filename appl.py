@@ -1,5 +1,6 @@
 # import python flask library
 from flask import Flask, g, redirect, render_template, request, session, url_for
+from appl2 import get_projects
 
 # define app
 app = Flask(__name__)
@@ -9,30 +10,29 @@ import databaseOperations
 
 # login page
 @app.route('/')
-@app.route('/login')
-def login():
-    return render_template('login.html')
+@app.route('/test')
+def test():
+    return "test"
 
-@app.route('/submit')
-def submit():
-    databaseOperations.new_project((6, "hush", 42))
-    return "submit"
+@app.route('/new_user')
+def newuser():
+    databaseOperations.new_user("Ewan", "password")
 
-@app.route('/edit')
-def edit():
-    databaseOperations.edit_project((1, "foo2: electric boogaloo", 2))
-    return redirect(url_for('view'))
+@app.route('/new_project')
+def newproject():
+    databaseOperations.new_project("foo", "version")
 
-@app.route('/view')
-def view():
-    page =[]
-    page.append('<html><ul>')
-    for row in databaseOperations.get_project_info([1]):
-        page.append('<li>')
-        page.append(str(row))
-        page.append('</li>')
-    page.append('</ul></html>')
-    return ''.join(page)
+@app.route('/get_projects')
+def getprojects():
+    databaseOperations.get_projects("Ewan", "")
 
+@app.route('/get_project_info')
+def getprojectinfo():
+    databaseOperations.get_project_info(1, "Ewan")
+
+@app.route('/get_project_users')
+def getprojectusers():
+    databaseOperations.get_project_users(1, "Ewan")
+    
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)

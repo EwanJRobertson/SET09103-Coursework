@@ -5,7 +5,6 @@ from flask import Flask, g, redirect, render_template, request, session, url_for
 app = Flask(__name__)
 
 # import database
-import database
 import databaseOperations
 
 # login page
@@ -16,15 +15,21 @@ def login():
 
 @app.route('/submit')
 def submit():
+    databaseOperations.new_project((6, "hush", 42))
     return "submit"
 
+@app.route('/edit')
+def edit():
+    databaseOperations.edit_project((1, "foo2: electric boogaloo", 2))
+    return redirect(url_for('view'))
+
 @app.route('/view')
-def view():
+def get_projects():
     page =[]
     page.append('<html><ul>')
-    for row in databaseOperations.get_project_info(database.get_db(),1):
+    for row in databaseOperations.get_project_info([1]):
         page.append('<li>')
-        page.append(str(row))
+        page.append(row)
         page.append('</li>')
     page.append('</ul></html>')
     return ''.join(page)
