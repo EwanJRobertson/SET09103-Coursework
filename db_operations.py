@@ -193,20 +193,15 @@ def edit_project(id, title, version):
             new.append(option)
         else:
             new.append[current[len(new)]]
+    new.append(id)
     
-    # delete old project from database
+    # update project
     cursor.execute("""
-        DELETE
-        FROM projects
+        UPDATE projects
+        SET project_id = ?
+            title = ?
+            version = ?
         WHERE project_id == ?
-        ;
-        """, [id])
-    db.commit()
-
-    # insert new project into database
-    cursor.execute("""
-        INSERT INTO projects
-        VALUES(?,?,?)
         ;
         """, new)
     db.commit()
