@@ -59,9 +59,7 @@ def getprojectusers():
     #    page.append("<li>")
     #    page.append(row)
     #    page.append("</li>")
-    page.append("<li>")
-    page.append(''.join(db_operations.get_project_users(1, "Ewan").json['records']))
-    page.append("</li>")
+    print(db_operations.get_project_users(1, "Ewan").json['records'])
     page.append("</ul></html>")
     return ''.join(page)
 

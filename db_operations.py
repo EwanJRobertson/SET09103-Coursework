@@ -3,6 +3,7 @@ import sqlite3
 
 # import jsonify to format return values
 from flask import jsonify
+import json
 
 # import get db function to allow the getting of a connection to the database
 from database import get_db
@@ -134,10 +135,11 @@ def get_project_users(project_id, username):
     query_results = cursor.execute("""
         SELECT username 
         FROM users_projects_link
-        WHERE project_id == ?
         ;
-        """, [project_id])
-    return jsonify(records = [query_results.fetchall()])
+        """).fetchall()
+
+    print(query_results)
+    return jsonify(records = query_results)
 
 # get issues associated with project
 def get_project_issues(project_id, order):
@@ -235,13 +237,17 @@ def assign_project(username, project_id):
         return jsonify(response="Project ID must be an integer.")
 
     # check user is not already linked to project
-    if cursor.execute("""
-        SELECT *
+    res = cursor.execute("""
+        SELECT 1
         FROM users_projects_link
         WHERE username == ?
             AND project_id == ?
         ;
-        """, [username, project_id]).fetchall() is not []:
+        """, [username, project_id]).fetchall()
+    print(username)
+    print(project_id)
+    print(res)
+    if res != []:
         return jsonify(response="User is already linked to project.")
 
     # insert new link between user and project
