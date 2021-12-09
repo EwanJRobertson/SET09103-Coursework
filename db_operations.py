@@ -230,6 +230,19 @@ def assign_project(username, project_id):
     if not valid:
         return jsonify(response="Username is not valid.")
 
+    # check project is valid
+    valid = False
+    for row in cursor.execute("""
+        SELECT project_id
+        FROM projects
+        ;
+        """):
+        if row[0] == project_id:
+            valid = True
+            break
+    if not valid:
+        return jsonify(response="Project is not valid.")
+
     # check project id is an integer
     if not isinstance(project_id, int):
         return jsonify(response="Project ID must be an integer.")
@@ -455,24 +468,28 @@ def edit_issue(project_id, issue_id, title, description, type_of_issue, version_
             new.append(option)
         else:
             new.append[current[len(new)]]
+    new.append(project_id)
+    new.append(issue_id)
     
-    # delete old issue from database
+    # update issue
     cursor.execute("""
-        DELETE
-        FROM issues
+        UPDATE issues
+        SET project_id = ?
+            issue_id = ?
+            title = ?
+            description = ?
+            type_of_issue = ?
+            date = ?
+            version_introduced = ?
+            username = ?
+            priority_level = ?
+            status = ?
         WHERE project_id == ?
             AND issue_id == ?
         ;
-        """, [project_id, issue_id])
-    db.commit()
-
-    # insert new project into database
-    cursor.execute("""
-        INSERT INTO issues
-        VALUES(?,?,?,?,?,?,?,?,?,?)
-        ;
         """, new)
     db.commit()
+
     jsonify(response="Project updated.")
 
 # delete issue
