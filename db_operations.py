@@ -127,7 +127,7 @@ def get_project_users(project_id, username):
         WHERE username == ?
             AND project_id == ?
         ;
-        """, [username, project_id]) is None:
+        """, [username, project_id]).fetchall() is []:
         return jsonify(response="User is not on this project.")
 
     # execute query and return results
@@ -137,7 +137,7 @@ def get_project_users(project_id, username):
         WHERE project_id == ?
         ;
         """, [project_id])
-    return jsonify(records=query_results)
+    return jsonify(records = [query_results.fetchall()])
 
 # get issues associated with project
 def get_project_issues(project_id, order):
@@ -241,7 +241,7 @@ def assign_project(username, project_id):
         WHERE username == ?
             AND project_id == ?
         ;
-        """, [username, project_id]).rowcount() == 0:
+        """, [username, project_id]).fetchall() is not []:
         return jsonify(response="User is already linked to project.")
 
     # insert new link between user and project
