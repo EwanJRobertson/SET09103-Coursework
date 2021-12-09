@@ -17,8 +17,8 @@ CREATE TABLE users (
 );
 
 CREATE TABLE users_projects_link (
-    project_id int NOT NULL,
     username text NOT NULL,
+    project_id int NOT NULL,
     PRIMARY KEY(project_id, username),
     FOREIGN KEY(project_id) REFERENCES projects(project_id),
     FOREIGN KEY(username) REFERENCES users(username)

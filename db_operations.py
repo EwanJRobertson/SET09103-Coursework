@@ -137,8 +137,6 @@ def get_project_users(project_id, username):
         FROM users_projects_link
         ;
         """).fetchall()
-
-    print(query_results)
     return jsonify(records = query_results)
 
 # get issues associated with project
@@ -237,17 +235,13 @@ def assign_project(username, project_id):
         return jsonify(response="Project ID must be an integer.")
 
     # check user is not already linked to project
-    res = cursor.execute("""
+    if cursor.execute("""
         SELECT 1
         FROM users_projects_link
         WHERE username == ?
             AND project_id == ?
         ;
-        """, [username, project_id]).fetchall()
-    print(username)
-    print(project_id)
-    print(res)
-    if res != []:
+        """, [username, project_id]).fetchall() != []:
         return jsonify(response="User is already linked to project.")
 
     # insert new link between user and project

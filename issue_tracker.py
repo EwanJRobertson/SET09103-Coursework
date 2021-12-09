@@ -55,11 +55,11 @@ def getprojectinfo():
 def getprojectusers():
     page = []
     page.append("<html><ul>")
-    #for row in db_operations.get_project_users(1, "Ewan").json['records']:
-    #    page.append("<li>")
-    #    page.append(row)
-    #    page.append("</li>")
-    print(db_operations.get_project_users(1, "Ewan").json['records'])
+    for row in db_operations.get_project_users(1, "Ewan").json['records']:
+        page.append("<li>")
+        page.append(''.join(row))
+        page.append("</li>")
+    #print(db_operations.get_project_users(1, "Ewan").json['records'])
     page.append("</ul></html>")
     return ''.join(page)
 
@@ -69,4 +69,4 @@ def assign():
     # return "test"
     
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True)
+    pp.run(host="0.0.0.0", debug=True)
