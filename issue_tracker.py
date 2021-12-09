@@ -4,6 +4,7 @@ import json
 
 # define app
 app = Flask(__name__)
+app.secret_key = 'secret'
 
 # import database
 import db_operations
@@ -21,10 +22,11 @@ def login():
                 user = str[session['username']]
                 redirect('/user/' + user)
         except:
+            session['name'] = "Ewan"
             return "Get"
 
 @app.route('/user', methods = ['GET', 'POST'])
-def user():
+def users():
     return "User"
 
 @app.route('/user/<user>', methods = ['GET'])
