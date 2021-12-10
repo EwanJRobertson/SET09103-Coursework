@@ -51,10 +51,10 @@ def get_projects(username, order):
         WHERE username == ?
         ORDER BY ?
         ;
-        """, [username, order])
+        """, [username, order]).fetchall()
     
     # return json objects
-    return jsonify(records=query_results)
+    return jsonify(records = query_results)
 
 # create new project
 def new_project(title, version):

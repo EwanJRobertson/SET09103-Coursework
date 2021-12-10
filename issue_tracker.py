@@ -4,6 +4,7 @@ import json
 
 # define app
 app = Flask(__name__)
+app.secret_key = 'secret'
 
 # import database
 import db_operations
@@ -13,7 +14,7 @@ import db_operations
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        session['name'] = "Ewan"
+        session['username'] = "Ewan"
         return "Post"
     else:
         try:
@@ -21,6 +22,7 @@ def login():
                 user = str[session['username']]
                 redirect('/user/' + user)
         except:
+            session['username'] = 'Ewan'
             return "Get"
 
 @app.route('/user', methods = ['GET', 'POST'])
@@ -41,10 +43,17 @@ def user(name):
 def projects(user):
     try:
         if session['username']:
-            if user == str[session['username']]:
-                return render_template('projects.html', db_operations.get_projects(user, request.GET.get('sort-by')))
+            if user == str(session['username']):
+                order = ""
+                try:
+                    if request.args.get('sort-by'):
+                        order = request.args.get('sort-by')
+                except:
+                    order = ""
+                projects = db_operations.get_projects(user, order).json['records']
+                return render_template('projects.html', projects = projects)
     except:
-        return "except"
+        return render_template('projects.html')
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)
