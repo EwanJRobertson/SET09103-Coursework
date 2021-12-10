@@ -4,7 +4,6 @@ import json
 
 # define app
 app = Flask(__name__)
-app.secret_key = 'secret'
 
 # import database
 import db_operations
@@ -22,11 +21,10 @@ def login():
                 user = str[session['username']]
                 redirect('/user/' + user)
         except:
-            session['name'] = "Ewan"
             return "Get"
 
 @app.route('/user', methods = ['GET', 'POST'])
-def users():
+def new_user():
     return "User"
 
 @app.route('/user/<user>', methods = ['GET'])
@@ -39,5 +37,14 @@ def user(name):
     except:
         redirect('/user')
 
+@app.route('/user/<user>/projects', methods = ['GET'])
+def projects(user):
+    try:
+        if session['username']:
+            if user == str[session['username']]:
+                return render_template('projects.html', db_operations.get_projects(user, request.GET.get('sort-by')))
+    except:
+        return "except"
+
 if __name__ == "__main__":
-    pp.run(host="0.0.0.0", debug=True)
+    app.run(host="0.0.0.0", debug=True)

@@ -6,7 +6,7 @@ from flask import jsonify
 import json
 
 # import get db function to allow the getting of a connection to the database
-from database import get_db
+from db import get_db
 
 # create new user
 def new_user(username, password_hash):
