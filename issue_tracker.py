@@ -20,16 +20,17 @@ def login():
         if login_user(username, password_hash):
             return redirect('/user/' + username)
     else:
-        try:
-            if session['username']:
-                username = str[session['username']]
-                redirect('/user/' + username)
-        except:
-            return render_template('login.html')
+        return render_template('login.html', type="Login", login=True)
 
-@app.route('/user', methods = ['GET', 'POST'])
+@app.route('/new-user', methods = ['GET', 'POST'])
 def new_user():
-    return "User"
+    if request.method == 'POST':
+        if db_operations.new_user(request.form['username'], request.form['password']):
+            return redirect('/user/' + request.form['username'])
+        else:
+            print()
+    else:
+        return render_template('login', type="New User", login=False)
 
 @app.route('/user/<user>', methods = ['GET'])
 def user(name):

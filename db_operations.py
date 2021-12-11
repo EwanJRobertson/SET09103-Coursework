@@ -21,8 +21,8 @@ def new_user(username, password_hash):
         ;
         """):
         if row[0] == username:
-            return jsonify(response="Username already in use.")
-
+            return False
+            
     # insert new user into database
     cursor.execute("""
         INSERT INTO users 
@@ -30,7 +30,7 @@ def new_user(username, password_hash):
         ;
         """, [username, password_hash])
     db.commit()
-    return jsonify(response="User added.")
+    return True
 
 # get all projects that a user is a part of
 def get_projects(username, order):
