@@ -1,4 +1,4 @@
-# import python flask library
+# import python libraries
 from flask import Flask, g, redirect, render_template, request, session, url_for
 import json
 
@@ -6,21 +6,24 @@ import json
 app = Flask(__name__)
 app.secret_key = 'secret'
 
-# import database
+# import
 import db_operations
+import login
 
 # login page
 @app.route('/')
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        session['username'] = "Ewan"
-        return "Post"
+        username = request.form['username']
+        password_hash = request.form['password']
+        if login(username, password_hash).json['response'] == "Login attempt succeded":
+            redirect('/user/' + username)
     else:
         try:
             if session['username']:
-                user = str[session['username']]
-                redirect('/user/' + user)
+                username = str[session['username']]
+                redirect('/user/' + username)
         except:
             session['username'] = 'Ewan'
             return "Get"
@@ -50,10 +53,25 @@ def projects(user):
                         order = request.args.get('sort-by')
                 except:
                     order = ""
-                projects = db_operations.get_projects(user, order).json['records']
-                return render_template('projects.html', projects = projects)
+                return render_template('projects.html', projects = db_operations.get_projects(user, order).json['records'])
     except:
         return render_template('projects.html')
+    
+@app.route('/user/<user>/projects/<project>', methods = ['GET'])
+def projects(user, project):
+    try:
+        if session['username']:
+            print("2")
+    except:
+        print("3")
+
+@app.route('/user/<user>/projects/<project>/<issue_id>', methods = ['GET', 'POST'])
+def issue(user, project, issue_id):
+    print("1")
+
+@app.route('/error', methods = ['GET'])
+def error():
+    print("bridge closed")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)
