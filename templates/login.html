@@ -1,9 +1,43 @@
-<html>
-    <head>
+<!doctype html>
+<html lang="en">
 
-    </head>
+<head>
+    
+  <meta charset="utf-8">
+  <meta name="author" content="Ewan Robertson">
+  <title>Issue Tracker</title>
 
-    <body>
-        <h3>Login</h3>
-    </body>
-</html>
+  <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet"/>
+
+  <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+
+</head>
+
+<body class="">
+
+    <header class="bg-dark text-white p-2">
+      <div class="container">
+        <h1>Login</h1>
+      </div>
+      <nav class="navbar navbar-default">
+        <div class="container-fluid bg-light">
+          <ul class="nav navbar-nav list-group list-group-horizontal py-1">
+            <li class="px-3 active"><a href="#" style="text-decoration:none;">Login</a></li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container p-2">
+        <form method="POST">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password_hash" placeholder="Password" required>
+            <input type="submit">
+        </form>
+    </main>
+
+    <footer class="container">
+    </footer>
+
+</body>
