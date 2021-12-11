@@ -7,7 +7,7 @@ from issue_tracker import app
 
 from db import get_db
 
-def login(username, password_hash):
+def login_user(username, password_hash):
     # initialise connection
     db = get_db()
     cursor = db.cursor()
@@ -21,6 +21,6 @@ def login(username, password_hash):
     
     if password_hash == correct_hash:
         session['username'] = username
-        return jsonify(response = "Login attempt succeded.")
+        return True
     else:
-        return jsonify(response = "Login attempt failed.")
+        return False

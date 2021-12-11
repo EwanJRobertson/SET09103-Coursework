@@ -8,7 +8,7 @@ app.secret_key = 'secret'
 
 # import
 import db_operations
-import login
+from login import login_user
 
 # login page
 @app.route('/')
@@ -17,16 +17,15 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password_hash = request.form['password']
-        if login(username, password_hash).json['response'] == "Login attempt succeded":
-            redirect('/user/' + username)
+        if login_user(username, password_hash):
+            return redirect('/user/' + username)
     else:
         try:
             if session['username']:
                 username = str[session['username']]
                 redirect('/user/' + username)
         except:
-            session['username'] = 'Ewan'
-            return "Get"
+            return render_template('login.html')
 
 @app.route('/user', methods = ['GET', 'POST'])
 def new_user():
@@ -42,20 +41,20 @@ def user(name):
     except:
         redirect('/user')
 
-@app.route('/user/<user>/projects', methods = ['GET'])
-def projects(user):
-    try:
-        if session['username']:
-            if user == str(session['username']):
-                order = ""
-                try:
-                    if request.args.get('sort-by'):
-                        order = request.args.get('sort-by')
-                except:
-                    order = ""
-                return render_template('projects.html', projects = db_operations.get_projects(user, order).json['records'])
-    except:
-        return render_template('projects.html')
+#@app.route('/user/<user>/projects', methods = ['GET'])
+#def projects(user):
+#    try:
+#        if session['username']:
+#            if user == str(session['username']):
+#                order = ""
+#                try:
+#                    if request.args.get('sort-by'):
+#                        order = request.args.get('sort-by')
+#                except:
+#                    order = ""
+#                return render_template('projects.html', projects = db_operations.get_projects(user, order).json['records'])
+#    except:
+#        return render_template('projects.html')
     
 @app.route('/user/<user>/projects/<project>', methods = ['GET'])
 def projects(user, project):
