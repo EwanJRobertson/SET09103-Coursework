@@ -34,7 +34,11 @@
     </header>
 
     <main class="container p-2">
-      <form method="POST" action="/login">
+      {% if login %}
+        <form method="POST" action="/login">
+      {% else %}
+        <form method="POST" action="/new-user">
+      {% endif %}
         <input type="text" name="username" placeholder="Username" required>
         <input type="password" name="password" placeholder="Password" required>
         <input type="submit">

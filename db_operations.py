@@ -22,7 +22,7 @@ def new_user(username, password_hash):
         """):
         if row[0] == username:
             return False
-            
+
     # insert new user into database
     cursor.execute("""
         INSERT INTO users 

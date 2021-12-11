@@ -19,6 +19,8 @@ def login():
         password_hash = request.form['password']
         if login_user(username, password_hash):
             return redirect('/user/' + username)
+        else:
+            return render_template('login.html', type="Login", login=True)
     else:
         return render_template('login.html', type="Login", login=True)
 
@@ -26,21 +28,22 @@ def login():
 def new_user():
     if request.method == 'POST':
         if db_operations.new_user(request.form['username'], request.form['password']):
+            login_user(request.form['username'], request.form['password'])
             return redirect('/user/' + request.form['username'])
         else:
-            print()
+            return render_template('login.html', type="New User", login=False)
     else:
-        return render_template('login', type="New User", login=False)
+        return render_template('login.html', type="New User", login=False)
 
-@app.route('/user/<user>', methods = ['GET'])
-def user(name):
+@app.route('/user/<username>', methods = ['GET'])
+def user(username):
     try:
         if session['username']:
             session_user = str[session['username']]
-            if session_user != name:
-                redirect('/user')
+            if session_user == username:
+                return render_template('user.html')
     except:
-        redirect('/user')
+        return "we"
 
 #@app.route('/user/<user>/projects', methods = ['GET'])
 #def projects(user):

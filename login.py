@@ -15,11 +15,11 @@ def login_user(username, password_hash):
     correct_hash = cursor.execute("""
         SELECT password_hash
         FROM users
-        WHERE username = ?
+        WHERE username == ?
         ;
-        """, [username]).fetchone()[0]
+        """, [username]).fetchone()
     
-    if password_hash == correct_hash:
+    if password_hash == correct_hash[0]:
         session['username'] = username
         return True
     else:
