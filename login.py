@@ -24,3 +24,15 @@ def login_user(username, password_hash):
         return True
     else:
         return False
+
+def get_hash(username):
+    #initialise connection
+    db = get_db()
+    cursor = db.cursor()
+
+    return cursor.execute("""
+        SELECT password_hash
+        FROM users
+        WHERE username == ?
+        ;
+        """, [username]).fetchone()[0]

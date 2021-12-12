@@ -9,7 +9,7 @@ app.secret_key = 'secret'
 
 # import
 import db_operations
-from login import login_user
+from login import login_user, get_hash
 
 # login page
 @app.route('/')
@@ -17,7 +17,7 @@ from login import login_user
 def login():
     if request.method == 'POST':
         username = request.form['username']
-        password_hash = bcrypt.haspw(request.form['password'].encode('utf-8'), bcrypt.gensalt())
+        password_hash = bcrypt.hashpw(request.form['password'].encode('utf-8'), get_hash(username))
         if login_user(username, password_hash):
             return redirect('/' + username)
         else:
@@ -30,7 +30,7 @@ def login():
 def new_user():
     if request.method == 'POST':
         username = request.form['username']
-        password_hash = bcrypt.haspw(request.form['password'].encode('utf-8'), bcrypt.gensalt())
+        password_hash = bcrypt.hashpw(request.form['password'].encode('utf-8'), bcrypt.gensalt())
         if db_operations.new_user(username, password_hash):
             login_user(username, password_hash)
             return redirect('/' + request.form['username'])
@@ -66,7 +66,7 @@ def projects(username):
             return redirect('/login')
 
 @app.route('/<username>/<project_id>', methods = ['GET', 'POST'])
-def projects(username, project_id):
+def project(username, project_id):
     if request.method == 'POST':
         print(1)
     else:
