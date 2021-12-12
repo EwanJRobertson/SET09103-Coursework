@@ -112,7 +112,7 @@ def get_project_info(project_id, username):
     return jsonify(query_results)
 
 # get projects users
-def get_project_users(project_id, username):
+def get_project_users(project_id):
     # initialise connection
     db = get_db()
     cursor = db.cursor()
@@ -139,8 +139,24 @@ def get_project_users(project_id, username):
         """).fetchall()
     return jsonify(records = query_results)
 
+# is user on project
+def is_user_linked(username, project_id):
+    # initialise connection
+    db = get_db()
+    cursor = db.cursor()
+
+    if cursor.execute("""
+        SELECT 1
+        FROM users_projects_link
+        WHERE username == ?
+            AND project_id == ?
+        ;
+        """, [username, project_id]).fetchall() is not []:
+        return True
+    return False
+
 # get issues associated with project
-def get_project_issues(project_id, order):
+def get_project_issues(project_id, order, username):
     # initialise connection
     db = get_db()
     cursor = db.cursor()
