@@ -1,15 +1,48 @@
 # import python libraries
-from flask import Flask, g, redirect, render_template, request, session, url_for
+import configparser
+import logging
 import json
 import bcrypt
+
+from logging.handlers import RotatingFileHandler
+from flask import Flask, g, redirect, render_template, request, session, url_for
 
 # define app
 app = Flask(__name__)
 app.secret_key = 'secret'
 
-# import
+# import operations
 import db_operations
 from login import login_user, get_hash
+
+# initialise app
+def init(app):
+    config = configparser.ConfigParser()
+    try:
+        config_location = 'etc/defaults.cfg'
+        config.read(config_location)
+
+        app.config['DEBUG'] = config.get('config', 'debug')
+        app.config['ip_address'] = config.get('config', 'ip_address')
+        app.config['port'] = config.get('config', 'port')
+        app.config['url'] = config.get('config', 'url')
+        app.config['secret_key'] = config.get('config', 'secret_key')
+
+        app.config['log_file'] = config.get('logging', 'name')
+        app.config['log_location'] = config.get('logging', 'location')
+        app.config['log_level'] = config.get('logging', 'level')
+    except:
+        print('Could not read config file from ' + config_location)
+
+# initialise logging
+def logs(app):
+    log_pathname = app.config['log_location'] + app.config['log_file']
+    file_handler = RotatingFileHandler(log_pathname, maxBytes = 1024 * 1024 * 10, backupCount = 1024)
+    file_handler.setLevel(app.config['log_level'])
+    formatter = logging.Formatter('%(levelname)s | %(asctime)s | %(module)s | %(funcName)s | %(message)s')
+    file_handler.setFormatter(formatter)
+    app.logger.setLevel(app.config['log_level'])
+    app.logger.addHandler(file_handler)
 
 # login page
 @app.route('/')
@@ -18,6 +51,7 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password_hash = bcrypt.hashpw(request.form['password'].encode('utf-8'), get_hash(username))
+        app.logging.info('Log in attempt for user:' + username)
         if login_user(username, password_hash):
             return redirect('/' + username)
         else:
@@ -98,4 +132,7 @@ def error():
     print("bridge closed")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True)
+    init(app)
+    logs(app)
+    app.run(host = app.config['ip_address'],
+            port = int(app.config['port']))
