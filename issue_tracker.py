@@ -50,15 +50,15 @@ def logs(app):
 def login():
     if request.method == 'POST':
         username = request.form['username']
-        password_hash = bcrypt.hashpw(request.form['password'].encode('utf-8'), get_hash(username))
-        app.logging.info('Log in attempt for user:' + username)
+        password_hash = bcrypt.hashpw(request.form['password'].encode('utf-8'), get_hash(username).encode('utf-8'))
+        app.logger.info('Log in attempt for user:' + username)
         if login_user(username, password_hash):
             return redirect('/' + username)
         else:
-            return render_template('login.html', type="Login", login=True)
+            return render_template('login.html', type = "Login", login = True)
     else:
         session.pop('username', None)
-        return render_template('login.html', type="Login", login=True)
+        return render_template('login.html', type = "Login", login = True)
 
 @app.route('/new-user', methods = ['GET', 'POST'])
 def new_user():

@@ -30,9 +30,13 @@ def get_hash(username):
     db = get_db()
     cursor = db.cursor()
 
-    return cursor.execute("""
+    password_hash = cursor.execute("""
         SELECT password_hash
         FROM users
         WHERE username == ?
         ;
-        """, [username]).fetchone()[0]
+        """, [username]).fetchone()
+    if password_hash is not None:
+        return password_hash
+    else:
+        return ''
