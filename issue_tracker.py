@@ -115,7 +115,7 @@ def project(username, project_id):
                     if request.args.get('action') == 'view':
                         return render_template('list_view.html', type = 'project', action = 'view', records = projects, info = info)
                     elif request.args.get('action') == 'new':
-                        return render_template('list_view.html', type = 'project', action = 'new', records = projects, info = info)
+                        return render_template('.html', type = 'project', action = 'new')
                     else:
                         return render_template('list_view.html', type = 'project', action = 'edit', records = projects, info = info)
                 except:
