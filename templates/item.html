@@ -43,23 +43,22 @@
             
           <form method="PATCH" action="{{ url_for('project', username = username, project_id = record.project_id) }}">
             ID: #<input type="text" readonly>{{ record.issue_id }}</input>
-            <input type="text">{{ record.title }}</input>
-            <input type="text">{{ record.version }}</input>
+            <input name="title" type="text">{{ record.title }}</input>
+            <input name="version" type="text">{{ record.version }}</input>
             <input type="submit">
           </form>
 
           {% else %}
 
           <form method="POST" action="{{ url_for('projects', username = username) }}">
-            ID: #<input type="text" readonly>{{ record.issue_id }}</input>
             <input type="text" placeholder="Title">
             <input type="text" placeholder="Version">
             <input type="submit">
           </form>
 
           {% endif %}
-          
-        {% else %}
+           
+	{% else %}
 
           {% if action == 'view' %}
 
@@ -75,7 +74,7 @@
 
           {% elif action == 'edit' %}
 
-          <form method="PATCH" action="{{ url_for('issue', username = username, project_id = record.project_id, record.issue_id) }}">
+          <form method="PATCH" action="{{ url_for('issue', username = username, project_id = record.project_id, issue_id = record.issue_id) }}">
             ID #<input type="text" readonly>{{ record.issue_id }}</input>
             <input type="text">{{ record.title }}</input>
             <input type="text">{{ record.description }}</input>
@@ -89,7 +88,7 @@
 
           {% else %}
 
-          <form method="POST" action="{{ url_for('issue', username = username, project_id = record.project_id, record.issue_id) }}">
+          <form method="POST" action="{{ url_for('issue', username = username, project_id = record.project_id, issue_id = record.issue_id) }}">
             <input type="text" placeholder="Title"></input>
             <input type="text" placeholder="Description">
             <input type="text" placeholder="Type of Issue">
@@ -100,9 +99,9 @@
             <input type="submit">
           </form>
 
-          {% endif %}
-
-        {% endif %}
+	  {% endif %}
+	
+	{% endif %}
       </div>
 
     </main>
@@ -111,3 +110,5 @@
     </footer>
 
 </body>
+
+</html>

@@ -125,11 +125,12 @@ def projects(username):
 
     else:
         try:
-            if request.args.get['action'] == 'new':
-                return render_template('item.html', type='project', action = 'new')
+            if request.args and request.args.get('action') == 'new':
+                return render_template('item.html', username = username, type = 'project', action = 'new' )
             else:
-                return render_template('list_view.html', type='user', action = 'view', records = db_operations.get_projects(username, '').json['records'])
-        except:
+                return render_template('list_view.html', username = username, type = 'user', action = 'view', records = db_operations.get_projects(username, '', '').json['records'])
+        except Exception as e:
+            print(e)
             return redirect(url_for('login'))
 
 # project page
