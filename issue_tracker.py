@@ -49,6 +49,7 @@ def logs(app):
 def requires_login(f):
     @wraps(f)
     def decorated(*args, **kwargs):
+        print(session.get('username'))
         if kwargs['username'] != session.get('username'):
             return redirect(url_for('login'))
         return f(*args, **kwargs)
@@ -71,7 +72,7 @@ def login():
         username = request.form['username']
         if get_hash(username) is None:
             return render_template('login.html', type = 'login')
-        password_hash = bcrypt.hashpw(request.form['password'].encode('utf-8'), get_hash(username).encode('utf-8'))
+        password_hash = bcrypt.hashpw(request.form['password'].encode('utf-8'), get_hash(username))
         app.logger.info('Log in attempt for user:' + username)
         if login_user(username, password_hash):
             return redirect(url_for('user', username = username))
@@ -107,10 +108,10 @@ def user(username):
         return redirect(url_for('user', username = username))
 
     else:
-            try:
-                if request.args['change-password'] == 'True':
-                    return render_template('login.html', type = 'edit')
-            except:
+        try:
+            if request.args['change-password'] == 'True':
+                return render_template('login.html', type = 'edit')
+        except:
                 return render_template('user.html')
 
 # user projects
@@ -125,11 +126,12 @@ def projects(username):
 
     else:
         try:
-            if request.args.get('action') == 'new':
-                return render_template('item.html', type='project', action = 'new')
-            else:
-                search = request.form['q']
-                return render_template('list_view.html', type='user', action = 'view', records = db_operations.get_projects(username, search))
+            if request.args.get['action']:
+                action = request.args.get('action')
+                if request.args.get['action'] == 'new':
+                    return render_template('item.html', type='project', action = 'new')
+            search = request.form['q']
+            return render_template('list_view.html', type='user', action = 'view', records = db_operations.get_projects(username, search))
         except:
             return redirect(url_for('login'))
 
@@ -178,8 +180,6 @@ def issue(username, project_id, issue_id):
     if request.method == 'PATCH':
         title = request.form['title']
         description = request.form['description']
-        type_of_issue = request.form['type_of_issue']
-        version_introduced = request.form['version_introduced']
         priority_level = request.form['priority_level']
         status = request.form['status']
         db_operations.edit_issue(project_id, issue_id, title, description, type_of_issue, version_introduced, username, priority_level, status)
