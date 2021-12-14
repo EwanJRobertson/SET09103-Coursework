@@ -51,8 +51,8 @@
           {% else %}
 
           <form method="POST" action="{{ url_for('projects', username = username) }}">
-            <input type="text" placeholder="Title">
-            <input type="text" placeholder="Version">
+            <input name="title" type="text" placeholder="Title">
+            <input name="version" type="text" placeholder="Version">
             <input type="submit">
           </form>
 
@@ -76,26 +76,26 @@
 
           <form method="PATCH" action="{{ url_for('issue', username = username, project_id = record.project_id, issue_id = record.issue_id) }}">
             ID #<input type="text" readonly>{{ record.issue_id }}</input>
-            <input type="text">{{ record.title }}</input>
-            <input type="text">{{ record.description }}</input>
-            <input type="text">{{ record.type_of_issue }}</input>
-            <input type="text">{{ record.version_introduced }}</input>
-            <input type="text">{{ record.username }}</input>
-            <input type="text">{{ record.priority_level }}</input>
-            <input type="text">{{ record.status }}</input>
+            <input name="title" type="text">{{ record.title }}</input>
+            <input name="description" type="text">{{ record.description }}</input>
+            <input name="type_of_issue" type="text">{{ record.type_of_issue }}</input>
+            <input name="version_introduced" type="text">{{ record.version_introduced }}</input>
+            <input name="username" type="text">{{ record.username }}</input>
+            <input name="priority_level" type="text">{{ record.priority_level }}</input>
+            <input name="status" type="text">{{ record.status }}</input>
             <input type="submit">
           </form>
 
           {% else %}
 
           <form method="POST" action="{{ url_for('issue', username = username, project_id = record.project_id, issue_id = record.issue_id) }}">
-            <input type="text" placeholder="Title"></input>
-            <input type="text" placeholder="Description">
-            <input type="text" placeholder="Type of Issue">
-            <input type="text" placeholder="Version Introduced">
-            <input type="text" placeholder="User">
-            <input type="text" placeholder="Priority (integer)">
-            <input type="text" placeholder="Status">
+            <input name="title" type="text" placeholder="Title"></input>
+            <input name="description" type="text" placeholder="Description">
+            <input name="type_of_issue" type="text" placeholder="Type of Issue">
+            <input name="version_introduced" type="text" placeholder="Version Introduced">
+            <input name="username" type="text" placeholder="User">
+            <input name="priority_level" type="text" placeholder="Priority (integer)">
+            <input name="status" type="text" placeholder="Status">
             <input type="submit">
           </form>
 
