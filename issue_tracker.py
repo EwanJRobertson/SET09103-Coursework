@@ -48,8 +48,8 @@ def logs(app):
 # login decorator
 def requires_login(f):
     @wraps(f)
-    def decorated(username, *args, **kwargs):
-        if username != session.get('username'):
+    def decorated(*args, **kwargs):
+        if kwargs['username'] != session.get('username'):
             return redirect(url_for('login'))
         return f(*args, **kwargs)
     return decorated
