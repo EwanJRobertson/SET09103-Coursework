@@ -33,7 +33,7 @@ def new_user(username, password_hash):
     return True
 
 # get all projects that a user is a part of
-def get_projects(username, order):
+def get_projects(username, search, order):
     # initialise connection
     db = get_db()
     cursor = db.cursor()

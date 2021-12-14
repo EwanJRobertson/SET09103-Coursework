@@ -117,7 +117,6 @@ def user(username):
 @app.route('/user/<username>/projects', methods = ['GET', 'POST'])
 @requires_login
 def projects(username):
-    print("e")
     if request.method == 'POST':
         title = request.form['title']
         version = request.form['version']
@@ -126,14 +125,11 @@ def projects(username):
 
     else:
         try:
-            try:
-                if request.args.get['action'] == 'new':
-                    return render_template('item.html', type='project', action = 'new')
-            except:
-#                print(db_operations.get_projects(username, '').json['records'])
+            if request.args.get['action'] == 'new':
+                return render_template('item.html', type='project', action = 'new')
+            else:
                 return render_template('list_view.html', type='user', action = 'view', records = db_operations.get_projects(username, '').json['records'])
-        except Exception as e:
-            print(e)
+        except:
             return redirect(url_for('login'))
 
 # project page
