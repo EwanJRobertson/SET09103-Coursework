@@ -30,13 +30,25 @@ def get_hash(username):
     db = get_db()
     cursor = db.cursor()
 
-    password_hash = cursor.execute("""
+    return cursor.execute("""
         SELECT password_hash
         FROM users
         WHERE username == ?
         ;
-        """, [username]).fetchone()
-    if password_hash is not None:
-        return password_hash
-    else:
-        return ''
+        """, [username]).fetchone()[0]
+
+def change_password(username, old_password, new_password):
+    #initialise connection
+    db = get_db()
+    cursor = db.cursor()
+
+    if login_user(username, old_password):
+        cursor.execute("""
+            UPDATE users
+            SET password_hash = ?
+            WHERE username = ?
+            ;
+            """, [new_password, username])
+        cursor.commit()
+        return True
+    return False

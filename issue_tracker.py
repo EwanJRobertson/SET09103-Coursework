@@ -5,6 +5,7 @@ import json
 import bcrypt
 
 from logging.handlers import RotatingFileHandler
+from functools import wraps
 from flask import Flask, g, redirect, render_template, request, session, url_for
 
 # define app
@@ -13,7 +14,7 @@ app.secret_key = 'secret'
 
 # import operations
 import db_operations
-from login import login_user, get_hash
+from login import change_password, login_user, get_hash
 
 # initialise app
 def init(app):
@@ -44,22 +45,35 @@ def logs(app):
     app.logger.setLevel(app.config['log_level'])
     app.logger.addHandler(file_handler)
 
+# login decorator
+def requires_login(f):
+    @wraps(f)
+    def decorated(username, *args, **kwargs):
+        if username != session.get('username'):
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated
+
 # login page
 @app.route('/')
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
+        if get_hash(username) is None:
+            return render_template('login.html', type = 'login')
         password_hash = bcrypt.hashpw(request.form['password'].encode('utf-8'), get_hash(username).encode('utf-8'))
         app.logger.info('Log in attempt for user:' + username)
         if login_user(username, password_hash):
-            return redirect('/' + username)
+            return redirect(url_for('user', username = username))
         else:
-            return render_template('login.html', type = "Login", login = True)
+            return render_template('login.html', type = 'login')
+
     else:
         session.pop('username', None)
-        return render_template('login.html', type = "Login", login = True)
+        return render_template('login.html', type = 'login')
 
+# new user
 @app.route('/new-user', methods = ['GET', 'POST'])
 def new_user():
     if request.method == 'POST':
@@ -67,69 +81,118 @@ def new_user():
         password_hash = bcrypt.hashpw(request.form['password'].encode('utf-8'), bcrypt.gensalt())
         if db_operations.new_user(username, password_hash):
             login_user(username, password_hash)
-            return redirect('/' + request.form['username'])
+            return redirect(url_for('user', username = username))
         else:
-            return render_template('login.html', type="New User", login=False)
+            return render_template('login.html', type = 'new user')
+
     else:
-        return render_template('login.html', type="New User", login=False)
+        return render_template('login.html', type = 'new user')
 
-@app.route('/<username>', methods = ['GET'])
+# user page
+@app.route('/<username>', methods = ['GET', 'POST'])
+@requires_login
 def user(username):
-    try:
-        if username != str(session['username']):
-            return redirect('/login.html')
-        else:
-            return render_template('user.html')
-    except:
-        return redirect('/login.html')
+    if request.method == 'POST':
+        if username == request.form['username']:
+            change_password(username, request.form['password'], bcrypt.hashpw(request.form['new_password'].encode('utf-8'), bcrypt.gensalt()))
+        return redirect(url_for('user', username = username))
 
+    else:
+            try:
+                if request.args['change-password'] == 'True':
+                    return render_template('login.html', type = 'edit')
+            except:
+                return render_template('user.html')
+
+# user projects
 @app.route('/<username>/projects', methods = ['GET', 'POST'])
+@requires_login
 def projects(username):
     if request.method == 'POST':
-        return 1
+        title = request.form['title']
+        version = request.form['version']
+        db_operations.new_project(title, version, username)
+        return redirect(url_for('projects', username = username))
+
     else:
         try:
-            if username != str(session['username']):
-                return redirect('/login')
+            if request.args.get('action') == 'view':
+                return render_template('list_view.html', type='user', action = 'view', records = db_operations.get_projects(username))
             else:
-                if request.args.get('action') == 'view':
-                    return render_template('list_view.html', type='user', action = 'view', records = db_operations.get_projects(username))
-                else:
-                    return render_template('info-view.html', type='project', action = 'new')
+                return render_template('item.html', type='project', action = 'new')
         except:
-            return redirect('/login')
+            return redirect(url_for('login'))
 
-@app.route('/<username>/<project_id>', methods = ['GET', 'POST'])
+# project page
+@app.route('/<username>/<project_id>', methods = ['GET','PATCH', 'POST'])
+@requires_login
 def project(username, project_id):
+    if not db_operations.is_user_linked(username, project_id):
+            return redirect(url_for('login'))
+    
     if request.method == 'POST':
-        print(1)
+        title = request.form['title']
+        description = request.form['description']
+        type_of_issue = request.form['type_of_issue']
+        version_introduced = request.form['version_introduced']
+        priority_level = request.form['priority_level']
+        status = request.form['status']
+        db_operations.new_issue(project_id, title, description, type_of_issue, version_introduced, username, priority_level, status)
+        return redirect(url_for('project', username = username, project_id = project_id))
+    
+    elif request.method == 'PATCH':
+        title = request.form['title']
+        version = request.form['version']
+        db_operations.edit_project(project_id, title, version)
+        return redirect(url_for('project', username = username, project_id = project_id))
+    
     else:
         try:
-            if username != str(session['username']) or not db_operations.is_user_linked(username, project_id):
-                return redirect('/' + str(session['username']))
+            order = request.args.get('order')
+            info = db_operations.get_project_info(project_id, username)
+            if info is None:
+                return redirect(url_for('user', username = username))
+            projects = db_operations.get_project_issues(project_id, order, username)
+            if request.args.get('action') == 'view':
+                return render_template('list_view.html', type = 'project', action = 'view', records = projects, info = info)
+            elif request.args.get('action') == 'new':
+                return render_template('item.html', type = 'issue', action = 'new')
             else:
-                try:
-                    order = request.args.get('order')
-                    projects = db_operations.get_project_issues(project_id, order, username)
-                    info = db_operations.get_project_info(project_id, username)
-                    if request.args.get('action') == 'view':
-                        return render_template('list_view.html', type = 'project', action = 'view', records = projects, info = info)
-                    elif request.args.get('action') == 'new':
-                        return render_template('.html', type = 'project', action = 'new')
-                    else:
-                        return render_template('list_view.html', type = 'project', action = 'edit', records = projects, info = info)
-                except:
-                    return redirect('/' + str(session['username']))
+                return render_template('item.html', type = 'project', action = 'edit', record = info)
         except:
-            return redirect('/login')
+            return redirect(url_for('user', username = username))
 
-@app.route('/<username>/<project_id>/<issue_id>', methods = ['GET', 'POST'])
+# issue page
+@app.route('/<username>/<project_id>/<issue_id>', methods = ['GET', 'PATCH'])
+@requires_login
 def issue(username, project_id, issue_id):
-    print("1")
+    if not db_operations.is_user_linked(username, project_id):
+        return redirect(url_for('login'))
 
+    if request.method == 'PATCH':
+        title = request.form['title']
+        description = request.form['description']
+        type_of_issue = request.form['type_of_issue']
+        version_introduced = request.form['version_introduced']
+        priority_level = request.form['priority_level']
+        status = request.form['status']
+        db_operations.edit_issue(project_id, issue_id, title, description, type_of_issue, version_introduced, username, priority_level, status)
+        return redirect(url_for('issue', username = username, project_id = project_id, issue_id = issue_id))
+
+    else:
+        try:
+            issue = db_operations.get_issue(project_id, issue_id, username)
+            if request.args.get('action') == 'view':
+                return render_template('item.html', type = 'project', action = 'view', record = issue)
+            else:
+                return render_template('item.html', type = 'project', action = 'edit', record = issue)
+        except:
+            return redirect(url_for('user', username = username))
+
+# error page
 @app.route('/error', methods = ['GET'])
 def error():
-    print("bridge closed")
+    print('bridge closed')
 
 if __name__ == "__main__":
     init(app)

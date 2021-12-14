@@ -39,8 +39,8 @@ def get_projects(username, order):
     cursor = db.cursor()
 
     # get order column
-    if order == "":
-        order = "NULL"
+    if order == '':
+        order = 'NULL'
 
     # execute query
     query_results = cursor.execute("""
@@ -57,7 +57,7 @@ def get_projects(username, order):
     return jsonify(records = query_results)
 
 # create new project
-def new_project(title, version):
+def new_project(title, version, username):
     # initialise connection
     db = get_db()
     cursor = db.cursor()
@@ -78,7 +78,10 @@ def new_project(title, version):
         ;
         """, [project_id, title, version])
     db.commit()
-    return jsonify(response="Project added.")
+
+    # assign initial user to project
+    assign_project(project_id, username)
+    return jsonify(response ='project added')
 
 # get project info
 def get_project_info(project_id, username):
@@ -88,7 +91,7 @@ def get_project_info(project_id, username):
 
     # check project id is an integer
     if not isinstance(project_id, int):
-        return jsonify(response="Project ID must be an integer.")
+        return None
 
     # check user is linked to project
     if cursor.execute("""
@@ -98,7 +101,7 @@ def get_project_info(project_id, username):
             AND project_id == ?
         ;
         """, [username, project_id]) is None:
-        return jsonify(response="User is not on this project.")
+        return None
 
     # execute query
     query_results = cursor.execute("""
@@ -112,14 +115,14 @@ def get_project_info(project_id, username):
     return jsonify(query_results)
 
 # get projects users
-def get_project_users(project_id):
+def get_project_users(project_id, username):
     # initialise connection
     db = get_db()
     cursor = db.cursor()
 
     # check project id is an integer
     if not isinstance(project_id, int):
-        return jsonify(response="Project ID must be an integer.")
+        return jsonify(response ='project ID must be an integer')
 
     # check user is linked to project
     if cursor.execute("""
@@ -129,7 +132,7 @@ def get_project_users(project_id):
             AND project_id == ?
         ;
         """, [username, project_id]).fetchall() is []:
-        return jsonify(response="User is not on this project.")
+        return jsonify(response ='user is not on this project')
 
     # execute query and return results
     query_results = cursor.execute("""
@@ -163,11 +166,21 @@ def get_project_issues(project_id, order, username):
 
     # check project id is an integer
     if not isinstance(project_id, int):
-        return jsonify(response="Project ID must be an integer.")
+        return jsonify(response ='project ID must be an integer')
     
     # get order column
-    if order == "":
-        order = "NULL"
+    if order == '':
+        order = 'NULL'
+    
+    # check user is linked to project
+    if cursor.execute("""
+        SELECT 1
+        FROM users_projects_link
+        WHERE username == ?
+            AND project_id == ?
+        ;
+        """, [username, project_id]).fetchall() is []:
+        return jsonify(response ='user is not on this project')
     
     # execute query and return results
     query_results = cursor.execute("""
@@ -187,10 +200,10 @@ def edit_project(id, title, version):
 
     # check project id is an integer
     if not isinstance(id, int):
-        return jsonify(response="Project ID must be an integer.")
+        return jsonify(response ='project ID must be an integer')
 
     # get initial project
-    str = ""
+    str = ''
     for row in cursor.execute("""
         SELECT *
         FROM projects
@@ -202,10 +215,10 @@ def edit_project(id, title, version):
     # create array of new values
     options = [id, title, version]
     # determine replacement project values
-    current = str[1:len(str) -2].split(", ")
+    current = str[1:len(str) -2].split('', '')
     new = []
     for option in options:
-        if option != "":
+        if option != '':
             new.append(option)
         else:
             new.append[current[len(new)]]
@@ -239,7 +252,7 @@ def assign_project(username, project_id):
             valid = True
             break
     if not valid:
-        return jsonify(response="Username is not valid.")
+        return jsonify(response ='username is not valid')
 
     # check project is valid
     valid = False
@@ -252,11 +265,11 @@ def assign_project(username, project_id):
             valid = True
             break
     if not valid:
-        return jsonify(response="Project is not valid.")
+        return jsonify(response ='project is not valid')
 
     # check project id is an integer
     if not isinstance(project_id, int):
-        return jsonify(response="Project ID must be an integer.")
+        return jsonify(response ='project ID must be an integer')
 
     # check user is not already linked to project
     if cursor.execute("""
@@ -266,7 +279,7 @@ def assign_project(username, project_id):
             AND project_id == ?
         ;
         """, [username, project_id]).fetchall() != []:
-        return jsonify(response="User is already linked to project.")
+        return jsonify(response ='user is already linked to project')
 
     # insert new link between user and project
     cursor.execute("""
@@ -275,7 +288,7 @@ def assign_project(username, project_id):
         ;
         """, [username, project_id])
     db.commit()
-    return jsonify(response="User linked to project.")
+    return jsonify(response ='user linked to project')
 
 # leave project
 def leave_project(username, project_id):
@@ -294,11 +307,11 @@ def leave_project(username, project_id):
             valid = True
             break
     if not valid:
-        return jsonify(response="Username is not valid.")
+        return jsonify(response ='username is not valid')
 
     # check project id is an integer
     if not isinstance(project_id, int):
-        return jsonify(response="Project ID must be an integer.")
+        return jsonify(response ='project ID must be an integer')
 
     # check user is linked to project
     if cursor.execute("""
@@ -308,7 +321,7 @@ def leave_project(username, project_id):
             AND project_id == ?
         ;
         """, [username, project_id]) is None:
-        return jsonify(response="User is not on this project.")
+        return jsonify(response ='user is not on this project')
 
     # remove user from any issues they are assigned on the project
     for row in cursor.execute("""
@@ -318,8 +331,8 @@ def leave_project(username, project_id):
             AND project_id == ?
         ;
         """, [username, project_id]):
-        new = row[1:len(row) -2].split(", ")
-        new[7] = ""
+        new = row[1:len(row) -2].split(', ')
+        new[7] = ''
         cursor.execute("""
             INSERT INTO issues
             VALUES(?,?,?,?,?,?,?,?,?,?)
@@ -344,11 +357,11 @@ def new_issue(project_id, title, description, type_of_issue, version_introduced,
 
     # check project id is an integer
     if not isinstance(project_id, int):
-        return jsonify(response="Project ID must be an integer.")
+        return jsonify(response ='project ID must be an integer')
     
     # check priority level is empty string or an integer
-    if not isinstance(priority_level, int) or priority_level == "":
-        return jsonify(response="Priority level must be an empty string or an integer.")
+    if not isinstance(priority_level, int) or priority_level == '':
+        return jsonify(response ='priority level must be an empty string or an integer')
 
     # check project exists
     if cursor.execute("""
@@ -357,7 +370,7 @@ def new_issue(project_id, title, description, type_of_issue, version_introduced,
         WHERE project_id == ?
         ;
         """, [project_id]) is None:
-        return jsonify(response="Project does not exist.")
+        return jsonify(response ='project does not exist')
     
     # check user is linked to project
     if cursor.execute("""
@@ -367,7 +380,7 @@ def new_issue(project_id, title, description, type_of_issue, version_introduced,
             AND project_id == ?
         ;
         """, [username, project_id]) is None:
-        return jsonify(response="User is not on this project.")
+        return jsonify(response ='user is not on this project')
 
     # get next unique issue id value for project
     issue_id = 0
@@ -381,7 +394,7 @@ def new_issue(project_id, title, description, type_of_issue, version_introduced,
     
     # function to get date from system
     from datetime import datetime
-    date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     # insert new issue into database
     cursor.execute("""
@@ -405,7 +418,7 @@ def get_issue(project_id, issue_id, username):
             AND project_id == ?
         ;
         """, [username, project_id]) is None:
-        return jsonify(response="User is not on this project.")
+        return jsonify(response ='user is not on this project')
 
     # get issue
     query_results = cursor.execute("""
@@ -425,7 +438,7 @@ def edit_issue(project_id, issue_id, title, description, type_of_issue, version_
 
     # check project id is an integer
     if not isinstance(project_id, int):
-        return jsonify(response="Project ID must be an integer.")
+        return jsonify(response ='project ID must be an integer')
     
     # check user is linked to project
     if cursor.execute("""
@@ -435,11 +448,11 @@ def edit_issue(project_id, issue_id, title, description, type_of_issue, version_
             AND project_id == ?
         ;
         """, [username, project_id]) is None:
-        return jsonify(response="User is not on this project.")
+        return jsonify(response ='user is not on this project')
     
     # check issue id is an integer
     if not isinstance(issue_id, int):
-        return jsonify(response="Issue ID must be an integer.")
+        return jsonify(response ='issue ID must be an integer')
 
     # check issue exists
     if cursor.execute("""
@@ -449,11 +462,11 @@ def edit_issue(project_id, issue_id, title, description, type_of_issue, version_
             AND issue_id == ?
         ;
         """, [project_id, issue_id]) is None:
-        return jsonify(response="Issue does not exist.")
+        return jsonify(response ='issue does not exist')
     
     # check priority level is empty string or an integer
-    if not isinstance(priority_level, int) or priority_level == "":
-        return jsonify(response="Priority level must be an empty string or an integer.")
+    if not isinstance(priority_level, int) or priority_level == '':
+        return jsonify(response ='priority level must be an empty string or an integer')
     
     # get initial issue
     str = ""
@@ -469,10 +482,10 @@ def edit_issue(project_id, issue_id, title, description, type_of_issue, version_
     # create array of new values
     # function to get date from system
     from datetime import datetime
-    date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     options = [project_id, issue_id, title, description, type_of_issue, date, version_introduced, username, priority_level, status]
     # determine replacement issue values
-    current = str[1:len(str) -2].split(", ")
+    current = str[1:len(str) -2].split(', ')
     new = []
     for option in options:
         if option != "":
@@ -501,7 +514,7 @@ def edit_issue(project_id, issue_id, title, description, type_of_issue, version_
         """, new)
     db.commit()
 
-    jsonify(response="Project updated.")
+    return jsonify(response ='project updated')
 
 # delete issue
 def delete_issue(project_id, issue_id, username):
@@ -511,7 +524,7 @@ def delete_issue(project_id, issue_id, username):
 
     # check project id is an integer
     if not isinstance(project_id, int):
-        return jsonify(response="Project ID must be an integer.")
+        return jsonify(response ='project ID must be an integer')
     
     # check user is linked to project
     if cursor.execute("""
@@ -521,11 +534,11 @@ def delete_issue(project_id, issue_id, username):
             AND project_id == ?
         ;
         """, [username, project_id]) is None:
-        return jsonify(response="User is not on this project.")
+        return jsonify(response ='user is not on this project')
     
     # check issue id is an integer
     if not isinstance(issue_id, int):
-        return jsonify(response="Issue ID must be an integer.")
+        return jsonify(response ='issue ID must be an integer')
 
     # check issue exists
     if cursor.execute("""
@@ -535,7 +548,7 @@ def delete_issue(project_id, issue_id, username):
             AND issue_id == ?
         ;
         """, [project_id, issue_id]) is None:
-        return jsonify(response="Issue does not exist.")
+        return jsonify(response ='issue does not exist')
     
     # remove issue
     cursor.execute("""
@@ -545,4 +558,4 @@ def delete_issue(project_id, issue_id, username):
         ;
         """, [project_id, issue_id])
     db.commit()
-    jsonify(response="Issue deleted")
+    jsonify(response ='issue deleted')

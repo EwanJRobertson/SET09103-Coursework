@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    
+  <meta charset="utf-8">
+  <meta name="author" content="Ewan Robertson">
+  <title>Issue Tracker</title>
+
+  <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet"/>
+  <link href="{{ url_for('static', filename='css/issue_tracker.css') }}" rel="stylesheet"/>
+
+  <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+
+</head>
+
+<body class="">
+
+    <header class="bg-dark text-white p-2">
+      <div class="container">
+        <h1>{{ username }}</h1>
+      </div>
+      <nav class="navbar navbar-default">
+        <div class="container-fluid bg-light">
+          <ul class="nav navbar-nav list-group list-group-horizontal p-2">
+            <li><a href="{{ url_for('login') }}" class="link">Login</a></li>
+            <li><a href="{{ url_for('user', username = username) }}" class="link">{{ username }}</a></li>
+            {% if type is "issue" %}
+            <li class="active"><a href="{{ url_for('project', username = username, project_id = record.project_id) }}" class="link">Project</a></li>
+            {% endif %}
+          </ul>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container p-2">
+
+      <div class="py-2" style="outline-style:solid; border-radius:0.5pc;">
+        {% if type is "project" %}
+
+          {% if action is "edit" %}
+            
+          <form method="PATCH" action="{{ url_for('project', username = username, project_id = record.project_id) }}">
+            ID: #<input type="text" readonly>{{ record.issue_id }}</input>
+            <input type="text">{{ record.title }}</input>
+            <input type="text">{{ record.version }}</input>
+            <input type="submit">
+          </form>
+
+          {% else %}
+
+          <form method="POST" action="{{ url_for('projects', username = username) }}">
+            ID: #<input type="text" readonly>{{ record.issue_id }}</input>
+            <input type="text" placeholder="Title">
+            <input type="text" placeholder="Version">
+            <input type="submit">
+          </form>
+
+          {% endif %}
+          
+        {% else %}
+
+          {% if action is "view" %}
+
+          <h3>{{ record.title }}</h3>
+          ID: #{{ record.issue_id }}
+          {{ record.description }}
+          {{ record.type_of_issue }}
+          {{ record.date_last_updated }}
+          {{ record.version_introduced }}
+          {{ record.username }}
+          {{ record.priority_level }}
+          {{ record.status }}
+
+          {% else if action is "edit" %}
+
+          <form method="PATCH" action="{{ url_for('issue', username = username, project_id = record.project_id, record.issue_id) }}">
+            ID #<input type="text" readonly>{{ record.issue_id }}</input>
+            <input type="text">{{ record.title }}</input>
+            <input type="text">{{ record.description }}</input>
+            <input type="text">{{ record.type_of_issue }}</input>
+            <input type="text">{{ record.version_introduced }}</input>
+            <input type="text">{{ record.username }}</input>
+            <input type="text">{{ record.priority_level }}</input>
+            <input type="text">{{ record.status }}</input>
+            <input type="submit">
+          </form>
+
+          {% else %}
+
+          <form method="POST" action="{{ url_for('issue', username = username, project_id = record.project_id, record.issue_id) }}">
+            <input type="text" placeholder="Title"></input>
+            <input type="text" placeholder="Description">
+            <input type="text" placeholder="Type of Issue">
+            <input type="text" placeholder="Version Introduced">
+            <input type="text" placeholder="User">
+            <input type="text" placeholder="Priority (integer)">
+            <input type="text" placeholder="Status">
+            <input type="submit">
+          </form>
+
+          {% endif %}
+
+        {% endif %}
+      </div>
+
+    </main>
+
+    <footer class="container">
+    </footer>
+
+</body>

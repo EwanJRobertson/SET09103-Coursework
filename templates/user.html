@@ -7,11 +7,11 @@
   <meta name="author" content="Ewan Robertson">
   <title>Issue Tracker</title>
 
-  <link href="../static/css/bootstrap.min.css" rel="stylesheet">
-  <link href="../static/css/issue_tracker.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet"/>
+  <link href="{{ url_for('static', filename='css/issue_tracker.css') }}" rel="stylesheet"/>
 
-  <script type="text/javascript" src="../static/js/jquery-3.6.0.min.js"></script>
-  <script src="../static/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
 
 </head>
 
@@ -33,9 +33,9 @@
 
     <main class="container p-2">
       <ul class="list-unstyled">
-        <li><a href="/projects">View Projects</a></li>
-        <li><a href="/change-username">Change Username</a></li>
-        <li><a href="/login">Logout</a></li>
+        <li><a href="{{ url_for('user', username = username) }}">View Projects</a></li>
+        <li><a href="{{ url_for('username', username = username) }}">Change Username</a></li>
+        <li><a href="{{ url_for('login') }}">Logout</a></li>
       </ul>
     </main>
 
