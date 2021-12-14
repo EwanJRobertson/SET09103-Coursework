@@ -54,6 +54,15 @@ def requires_login(f):
         return f(*args, **kwargs)
     return decorated
 
+# is user linked to project decorator
+def requires_assigned_to_project(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not db_operations.is_user_linked(kwargs['username'], kwargs['project_id']):
+            return redirect(url_for('user', username = kwargs['username']))
+        return f(*args, **kwargs)
+    return decorated
+
 # login page
 @app.route('/')
 @app.route('/login', methods = ['GET', 'POST'])
@@ -116,20 +125,19 @@ def projects(username):
 
     else:
         try:
-            if request.args.get('action') == 'view':
-                return render_template('list_view.html', type='user', action = 'view', records = db_operations.get_projects(username))
-            else:
+            if request.args.get('action') == 'new':
                 return render_template('item.html', type='project', action = 'new')
+            else:
+                search = request.form['q']
+                return render_template('list_view.html', type='user', action = 'view', records = db_operations.get_projects(username, search))
         except:
             return redirect(url_for('login'))
 
 # project page
 @app.route('/<username>/<project_id>', methods = ['GET','PATCH', 'POST'])
 @requires_login
+@requires_assigned_to_project
 def project(username, project_id):
-    if not db_operations.is_user_linked(username, project_id):
-            return redirect(url_for('login'))
-    
     if request.method == 'POST':
         title = request.form['title']
         description = request.form['description']
@@ -165,10 +173,8 @@ def project(username, project_id):
 # issue page
 @app.route('/<username>/<project_id>/<issue_id>', methods = ['GET', 'PATCH'])
 @requires_login
+@requires_assigned_to_project
 def issue(username, project_id, issue_id):
-    if not db_operations.is_user_linked(username, project_id):
-        return redirect(url_for('login'))
-
     if request.method == 'PATCH':
         title = request.form['title']
         description = request.form['description']
