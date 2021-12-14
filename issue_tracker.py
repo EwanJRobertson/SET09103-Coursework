@@ -49,7 +49,6 @@ def logs(app):
 def requires_login(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        print(session.get('username'))
         if kwargs['username'] != session.get('username'):
             return redirect(url_for('login'))
         return f(*args, **kwargs)
@@ -59,8 +58,8 @@ def requires_login(f):
 def requires_assigned_to_project(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        if not db_operations.is_user_linked(kwargs['username'], kwargs['project_id']):
-            return redirect(url_for('user', username = kwargs['username']))
+        if not db_operations.is_user_linked(kwargs['user'], kwargs['project_id']):
+            return redirect(url_for('user', username = kwargs['user']))
         return f(*args, **kwargs)
     return decorated
 
@@ -99,7 +98,7 @@ def new_user():
         return render_template('login.html', type = 'new user')
 
 # user page
-@app.route('/<username>', methods = ['GET', 'POST'])
+@app.route('/user/<username>', methods = ['GET', 'POST'])
 @requires_login
 def user(username):
     if request.method == 'POST':
@@ -112,12 +111,13 @@ def user(username):
             if request.args['change-password'] == 'True':
                 return render_template('login.html', type = 'edit')
         except:
-                return render_template('user.html')
+                return render_template('user.html', username = username)
 
 # user projects
-@app.route('/<username>/projects', methods = ['GET', 'POST'])
+@app.route('/user/<username>/projects', methods = ['GET', 'POST'])
 @requires_login
 def projects(username):
+    print("e")
     if request.method == 'POST':
         title = request.form['title']
         version = request.form['version']
@@ -126,17 +126,18 @@ def projects(username):
 
     else:
         try:
-            if request.args.get['action']:
-                action = request.args.get('action')
+            try:
                 if request.args.get['action'] == 'new':
                     return render_template('item.html', type='project', action = 'new')
-            search = request.form['q']
-            return render_template('list_view.html', type='user', action = 'view', records = db_operations.get_projects(username, search))
-        except:
+            except:
+#                print(db_operations.get_projects(username, '').json['records'])
+                return render_template('list_view.html', type='user', action = 'view', records = db_operations.get_projects(username, '').json['records'])
+        except Exception as e:
+            print(e)
             return redirect(url_for('login'))
 
 # project page
-@app.route('/<username>/<project_id>', methods = ['GET','PATCH', 'POST'])
+@app.route('/user/<username>/<project_id>', methods = ['GET','PATCH', 'POST'])
 @requires_login
 @requires_assigned_to_project
 def project(username, project_id):
@@ -173,7 +174,7 @@ def project(username, project_id):
             return redirect(url_for('user', username = username))
 
 # issue page
-@app.route('/<username>/<project_id>/<issue_id>', methods = ['GET', 'PATCH'])
+@app.route('/user/<username>/<project_id>/<issue_id>', methods = ['GET', 'PATCH'])
 @requires_login
 @requires_assigned_to_project
 def issue(username, project_id, issue_id):

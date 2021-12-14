@@ -20,6 +20,7 @@ def login_user(username, password_hash):
         """, [username]).fetchone()
     
     if password_hash == correct_hash[0]:
+        session['init']='Test'
         session['username'] = username
         return True
     else:

@@ -52,7 +52,7 @@ def get_projects(username, order):
         ORDER BY ?
         ;
         """, [username, order]).fetchall()
-    
+
     # return json objects
     return jsonify(records = query_results)
 
