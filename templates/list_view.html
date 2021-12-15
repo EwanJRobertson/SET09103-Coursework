@@ -33,9 +33,7 @@
         </div>
       </nav>
       {% if type == 'issues' %}
-      <form method="GET" action="{{ url_for('project', username = username, project_id = project_id, view = 'board') }}">
-        <input type="submit" value="List View">
-      </form>
+      <a class="btn btn-primary" href="{{ url_for('project', username = username, project_id = project_id, view = 'board') }}">Board View</a>
       {% endif %}
     </header>
 

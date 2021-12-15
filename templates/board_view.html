@@ -30,13 +30,11 @@
           </ul>
         </div>
       </nav>
-      <form method="GET" action="{{ url_for('project', username = username, project_id = project_id) }}">
-        <input type="submit" value="List View">
-      </form>
+      <a href="{{ url_for('project', username = username, project_id = project_id) }}">List View</a>
     </header>
 
     <main class="container p-2">
-
+      <h1>Board</h1>
       <div class="">
         <div class="bg-light px-4 py-2 my-3 col-8" style="border-style:solid; border-radius:0.5pc;">
           <div>
