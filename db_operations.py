@@ -53,7 +53,7 @@ def get_projects(username, search, order):
             AND title LIKE ?
         ORDER BY ?
         ;
-        """, [username, search, order]).fetchall()
+        """, [username, search + '%', order]).fetchall()
 
     # return json objects
     return jsonify(records = json.dumps([dict(row) for row in query_results]))
@@ -202,7 +202,7 @@ def get_project_issues(project_id, search, order, username):
             AND title LIKE ?
         ORDER BY ?
         ;
-        """, [project_id, search, order]).fetchall()
+        """, [project_id, search + '%', order]).fetchall()
     
     return jsonify(records = json.dumps([dict(row) for row in query_results]))
 
