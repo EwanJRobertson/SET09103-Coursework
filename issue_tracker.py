@@ -128,7 +128,6 @@ def projects(username):
             if request.args and request.args.get('action') == 'new':
                 return render_template('item.html', username = username, type = 'project', action = 'new' )
             else:
-               # print(db_operations.get_projects(username, '', '').json['records'])
                 return render_template('list_view.html', username = username, type = 'user', action = 'view', records = json.loads(db_operations.get_projects(username, '', '').json['records']))
         except Exception as e:
             print(e)
@@ -144,9 +143,10 @@ def project(username, project_id):
         description = request.form['description']
         type_of_issue = request.form['type_of_issue']
         version_introduced = request.form['version_introduced']
+        assigned_user = request.form['username']
         priority_level = request.form['priority_level']
         status = request.form['status']
-        db_operations.new_issue(project_id, title, description, type_of_issue, version_introduced, username, priority_level, status)
+        db_operations.new_issue(project_id, title, description, type_of_issue, version_introduced, assigned_user, priority_level, status)
         return redirect(url_for('project', username = username, project_id = project_id))
     
     elif request.method == 'PATCH':
@@ -157,14 +157,21 @@ def project(username, project_id):
     
     else:
         try:
-            order = request.args.get('order')
+            search, order = ''
+            if request.args and request.args.get('search'):
+                order = request.args.get('search')
+            if request.args and request.args.get('order'):
+                order = request.args.get('order')
+
             info = db_operations.get_project_info(project_id, username)
             if info is None:
                 return redirect(url_for('user', username = username))
-            projects = db_operations.get_project_issues(project_id, order, username)
-            if request.args.get('action') == 'view':
+
+            projects = json.loads(db_operations.get_project_issues(project_id, search, order, username).json['records'])
+
+            if request.args and request.args.get('action') == 'view':
                 return render_template('list_view.html', type = 'project', action = 'view', records = projects, info = info)
-            elif request.args.get('action') == 'new':
+            elif request.args and request.args.get('action') == 'new':
                 return render_template('item.html', type = 'issue', action = 'new')
             else:
                 return render_template('item.html', type = 'project', action = 'edit', record = info)
@@ -179,9 +186,12 @@ def issue(username, project_id, issue_id):
     if request.method == 'PATCH':
         title = request.form['title']
         description = request.form['description']
+        type_of_issue = request.form['type_of_issue']
+        version_introduced = request.form['version_introduced']
+        assigned_user = request.form['username']
         priority_level = request.form['priority_level']
         status = request.form['status']
-        db_operations.edit_issue(project_id, issue_id, title, description, type_of_issue, version_introduced, username, priority_level, status)
+        db_operations.edit_issue(project_id, issue_id, title, description, type_of_issue, version_introduced, assigned_user, priority_level, status)
         return redirect(url_for('issue', username = username, project_id = project_id, issue_id = issue_id))
 
     else:

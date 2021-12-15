@@ -55,7 +55,7 @@ def get_projects(username, search, order):
         """, [username, order]).fetchall()
 
     # return json objects
-    return jsonify(records = json.dumps( [dict(row) for row in query_results] ))
+    return jsonify(records = json.dumps([dict(row) for row in query_results]))
 
 # create new project
 def new_project(title, version, username):
@@ -160,7 +160,7 @@ def is_user_linked(username, project_id):
     return False
 
 # get issues associated with project
-def get_project_issues(project_id, order, username):
+def get_project_issues(project_id, search, order, username):
     # initialise connection
     db = get_db()
     cursor = db.cursor()
@@ -191,7 +191,7 @@ def get_project_issues(project_id, order, username):
         ORDER BY ?
         ;
         """, [project_id, order])
-    return jsonify(records=query_results)
+    return jsonify(records = json.dumps([dict(row) for row in query_results]))
 
 # edit existing project
 def edit_project(id, title, version):
