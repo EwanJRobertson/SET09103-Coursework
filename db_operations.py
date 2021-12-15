@@ -50,9 +50,10 @@ def get_projects(username, search, order):
         JOIN users_projects_link 
             ON projects.project_id = users_projects_link.project_id
         WHERE username == ?
+            AND title LIKE ?
         ORDER BY ?
         ;
-        """, [username, order]).fetchall()
+        """, [username, search, order]).fetchall()
 
     # return json objects
     return jsonify(records = json.dumps([dict(row) for row in query_results]))
@@ -122,10 +123,13 @@ def get_project_info(project_id, username):
 def get_project_users(project_id, username):
     # initialise connection
     db = get_db()
+    db.row_factory = sqlite3.Row
     cursor = db.cursor()
 
     # check project id is an integer
-    if not isinstance(project_id, int):
+    try:
+        project_id = int(project_id)
+    except:
         return jsonify(response ='project ID must be an integer')
 
     # check user is linked to project
@@ -142,9 +146,10 @@ def get_project_users(project_id, username):
     query_results = cursor.execute("""
         SELECT username 
         FROM users_projects_link
+        WHERE project_id == ?
         ;
-        """).fetchall()
-    return jsonify(records = query_results)
+        """, [project_id]).fetchall()
+    return jsonify(records = json.dumps([dict(row) for row in query_results]))
 
 # is user on project
 def is_user_linked(username, project_id):
@@ -194,9 +199,10 @@ def get_project_issues(project_id, search, order, username):
         SELECT *
         FROM issues
         WHERE project_id == ?
+            AND title LIKE ?
         ORDER BY ?
         ;
-        """, [project_id, order]).fetchall()
+        """, [project_id, search, order]).fetchall()
     
     return jsonify(records = json.dumps([dict(row) for row in query_results]))
 
@@ -297,31 +303,19 @@ def leave_project(username, project_id):
     cursor = db.cursor()
 
     # check username is valid
-    valid = False
-    for row in cursor.execute("""
-        SELECT username 
+    if cursor.execute("""
+        SELECT 1
         FROM users
+        username == ?
         ;
-        """):
-        if row == username:
-            valid = True
-            break
-    if not valid:
+        """, [username]).fetchall() == []:
         return jsonify(response ='username is not valid')
 
     # check project id is an integer
-    if not isinstance(project_id, int):
+    try:
+        project_id = int(project_id)
+    except:
         return jsonify(response ='project ID must be an integer')
-
-    # check user is linked to project
-    if cursor.execute("""
-        SELECT 1
-        FROM users_projects_link
-        WHERE username == ?
-            AND project_id == ?
-        ;
-        """, [username, project_id]) is None:
-        return jsonify(response ='user is not on this project')
 
     # remove user from any issues they are assigned on the project
     for row in cursor.execute("""

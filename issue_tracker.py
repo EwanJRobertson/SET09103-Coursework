@@ -126,9 +126,15 @@ def projects(username):
     else:
         try:
             if request.args and request.args.get('action') == 'new':
-                return render_template('item.html', username = username, type = 'project', action = 'new' )
+                return render_template('item.html', username = username, type = 'project', action = 'new')
             else:
-                projects = json.loads(db_operations.get_projects(username, '', '').json['records'])
+                search = ''
+                order = ''
+                if request.args and request.args.get('search'):
+                    search = request.args.get('search')
+                if request.args and request.args.get('order'):
+                    order = request.args.get('order')
+                projects = json.loads(db_operations.get_projects(username, search, order).json['records'])
                 return render_template('list_view.html', username = username, type = 'projects', action = 'view', records = projects)
         except Exception as e:
             print(e)
@@ -158,25 +164,22 @@ def project(username, project_id):
     
     else:
         try:
-            search = ''
-            order = ''
-            if request.args and request.args.get('search'):
-                order = request.args.get('search')
-            if request.args and request.args.get('order'):
-                order = request.args.get('order')
-        
             info = json.loads(db_operations.get_project_info(project_id, username).json['records'])
             if info is []:
                 return redirect(url_for('user', username = username))
-
-            
-            issues = json.loads(db_operations.get_project_issues(project_id, search, order, username).json['records'])
             
             if request.args and request.args.get('action') == 'new':
                 return render_template('item.html', username = username, project_id = project_id, type = 'issue', action = 'new')
             elif request.args and request.args.get('action') == 'edit':
                 return render_template('item.html', username = username, type = 'project', action = 'edit', info = info)
             else:
+                search = ''
+                order = ''
+                if request.args and request.args.get('search'):
+                    search = request.args.get('search')
+                if request.args and request.args.get('order'):
+                    order = request.args.get('order')
+                issues = json.loads(db_operations.get_project_issues(project_id, search, order, username).json['records'])
                 return render_template('list_view.html', type = 'issues', username = username, action = 'view', records = issues, project_id = project_id, info = info)
         except Exception as e:
             print(e)
