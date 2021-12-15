@@ -128,7 +128,8 @@ def projects(username):
             if request.args and request.args.get('action') == 'new':
                 return render_template('item.html', username = username, type = 'project', action = 'new' )
             else:
-                return render_template('list_view.html', username = username, type = 'user', action = 'view', records = db_operations.get_projects(username, '', '').json['records'])
+               # print(db_operations.get_projects(username, '', '').json['records'])
+                return render_template('list_view.html', username = username, type = 'user', action = 'view', records = json.loads(db_operations.get_projects(username, '', '').json['records']))
         except Exception as e:
             print(e)
             return redirect(url_for('login'))

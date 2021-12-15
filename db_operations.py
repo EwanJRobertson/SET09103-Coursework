@@ -36,6 +36,7 @@ def new_user(username, password_hash):
 def get_projects(username, search, order):
     # initialise connection
     db = get_db()
+    db.row_factory = sqlite3.Row
     cursor = db.cursor()
 
     # get order column
@@ -54,7 +55,7 @@ def get_projects(username, search, order):
         """, [username, order]).fetchall()
 
     # return json objects
-    return jsonify(records = query_results)
+    return jsonify(records = json.dumps( [dict(row) for row in query_results] ))
 
 # create new project
 def new_project(title, version, username):
@@ -80,7 +81,7 @@ def new_project(title, version, username):
     db.commit()
 
     # assign initial user to project
-    assign_project(project_id, username)
+    assign_project(username, project_id)
     return jsonify(response ='project added')
 
 # get project info
@@ -242,35 +243,27 @@ def assign_project(username, project_id):
     cursor = db.cursor()
 
     # check username is valid
-    valid = False
-    for row in cursor.execute("""
-        SELECT username 
+    if cursor.execute("""
+        SELECT 1 
         FROM users
+        WHERE username == ?
         ;
-        """):
-        if row[0] == username:
-            valid = True
-            break
-    if not valid:
-        return jsonify(response ='username is not valid')
-
+        """, [username]).fetchall() is []:
+        return jsonify(response = 'username is not valid')
+    
     # check project is valid
-    valid = False
-    for row in cursor.execute("""
+    if cursor.execute("""
         SELECT project_id
         FROM projects
+        WHERE project_id == ?
         ;
-        """):
-        if row[0] == project_id:
-            valid = True
-            break
-    if not valid:
+        """, [project_id]).fetchall() is []:
         return jsonify(response ='project is not valid')
-
+    
     # check project id is an integer
     if not isinstance(project_id, int):
-        return jsonify(response ='project ID must be an integer')
-
+        return jsonify(response = 'project ID must be an integer')
+    
     # check user is not already linked to project
     if cursor.execute("""
         SELECT 1
@@ -279,7 +272,7 @@ def assign_project(username, project_id):
             AND project_id == ?
         ;
         """, [username, project_id]).fetchall() != []:
-        return jsonify(response ='user is already linked to project')
+        return jsonify(response = 'user is already linked to project')
 
     # insert new link between user and project
     cursor.execute("""

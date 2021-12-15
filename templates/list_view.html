@@ -57,7 +57,7 @@
         <ul class="list-unstyled">
           {% for record in records %}
             {% if type == 'user' %}
-            <a href="{{ url_for('project', username = username, project_id = record.project_id) }}" class="link container bg-white">#{{ record.project_id }} {{ record.title }}</a>
+	    <a href="{{ url_for('project', username = username, project_id = record.project_id) }}" class="link container bg-white">#{{record.project_id}} {{record.title}}</a>
             {% else %}
             <a href="{{ url_for('project', username = username, project_id = record.project_id, issue_id = issue_id) }}" class="link container bg-white">{{ record.title }} {{ record.status }} {{ record.priority }}</a>
             {% endif %}
