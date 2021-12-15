@@ -130,10 +130,13 @@ def projects(username):
             else:
                 search = ''
                 order = ''
-                if request.args and request.args.get('search'):
-                    search = request.args.get('search')
-                if request.args and request.args.get('order'):
-                    order = request.args.get('order')
+           
+                if request.args and request.args.get('q'):
+                    search = request.args.get('q')
+                if request.form and request.form['order']:
+                    order = request.form['order']
+                print(search)
+                print(order)
                 projects = json.loads(db_operations.get_projects(username, search, order).json['records'])
                 return render_template('list_view.html', username = username, type = 'projects', action = 'view', records = projects)
         except Exception as e:
@@ -141,24 +144,29 @@ def projects(username):
             return redirect(url_for('login'))
 
 # project page
-@app.route('/user/<username>/<project_id>', methods = ['GET','PATCH', 'POST'])
+@app.route('/user/<username>/<project_id>', methods = ['GET', 'PATCH', 'POST'])
 @requires_login
 @requires_assigned_to_project
 def project(username, project_id):
     if request.method == 'POST':
-        title = request.form['title']
-        description = request.form['description']
-        type_of_issue = request.form['type_of_issue']
-        version_introduced = request.form['version_introduced']
-        assigned_user = request.form['username']
-        priority_level = request.form['priority_level']
-        status = request.form['status']
-        db_operations.new_issue(project_id, title, description, type_of_issue, version_introduced, assigned_user, priority_level, status)
-        return redirect(url_for('project', username = username, project_id = project_id))
+        if request.args and request.args.get('action') == 'assign':
+            db_operations.assign_project(request.form['username'], project_id)
+            return redirect(url_for('project', username = username, project_id = project_id))
+        elif request.args and request.args.get('action') == 'delete':
+            db_operations.leave_project(username, project_id)
+            return redirect(url_for('projects', username = username))
+        else:
+            title = request.form['title']
+            description = request.form['description']
+            type_of_issue = request.form['type_of_issue']
+            version_introduced = request.form['version_introduced']
+            assigned_user = request.form['username']
+            priority_level = request.form['priority_level']
+            status = request.form['status']
+            db_operations.new_issue(project_id, title, description, type_of_issue, version_introduced, assigned_user, priority_level, status)
+            return redirect(url_for('project', username = username, project_id = project_id))
     
     elif request.method == 'PATCH':
-        title = request.form['title']
-        version = request.form['version']
         db_operations.edit_project(project_id, title, version)
         return redirect(url_for('project', username = username, project_id = project_id))
     
@@ -171,7 +179,9 @@ def project(username, project_id):
             if request.args and request.args.get('action') == 'new':
                 return render_template('item.html', username = username, project_id = project_id, type = 'issue', action = 'new')
             elif request.args and request.args.get('action') == 'edit':
-                return render_template('item.html', username = username, type = 'project', action = 'edit', info = info)
+                return render_template('item.html', username = username, type = 'project', action = 'edit', info = info[0])
+            elif request.args and request.args.get('action') == 'assign':
+                return render_template('item.html', username = username, type = 'project', action = 'assign', info = info[0])
             else:
                 search = ''
                 order = ''
@@ -180,7 +190,7 @@ def project(username, project_id):
                 if request.args and request.args.get('order'):
                     order = request.args.get('order')
                 issues = json.loads(db_operations.get_project_issues(project_id, search, order, username).json['records'])
-                return render_template('list_view.html', type = 'issues', username = username, action = 'view', records = issues, project_id = project_id, info = info)
+                return render_template('list_view.html', type = 'issues', username = username, action = 'view', records = issues, project_id = project_id, info = info[0])
         except Exception as e:
             print(e)
             return redirect(url_for('user', username = username))

@@ -306,7 +306,7 @@ def leave_project(username, project_id):
     if cursor.execute("""
         SELECT 1
         FROM users
-        username == ?
+        WHERE username == ?
         ;
         """, [username]).fetchall() == []:
         return jsonify(response ='username is not valid')
@@ -325,13 +325,22 @@ def leave_project(username, project_id):
             AND project_id == ?
         ;
         """, [username, project_id]):
-        new = row[1:len(row) -2].split(', ')
+        new = list(row)
         new[7] = ''
         cursor.execute("""
-            INSERT INTO issues
-            VALUES(?,?,?,?,?,?,?,?,?,?)
+            UPDATE issues
+            SET title = ?
+                AND description = ?
+                AND type_of_issue = ?
+                AND date_last_updated = ?
+                AND version_introduced = ?
+                AND username = ?
+                AND priority_level = ?
+                AND status = ?
+            WHERE project_id == ?
+                AND issue_id == ?
             ;
-            """, new)
+            """, [new[2], new[3], new[4], new[5], new[6], new[7], new[8], new[9], new[0], new[1]])
         db.commit()
     
     # remove user project link

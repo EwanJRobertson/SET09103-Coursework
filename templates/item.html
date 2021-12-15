@@ -42,13 +42,23 @@
           {% if action == 'edit' %}
             
           <form method="PATCH" action="{{ url_for('project', username = username, project_id = record.project_id) }}">
-            ID: #<input type="text" readonly>{{ record.issue_id }}</input>
+            ID: #<input type="text" readonly>{{ record.project_id }}</input>
             <input name="title" type="text">{{ record.title }}</input>
             <input name="version" type="text">{{ record.version }}</input>
             <input type="submit">
           </form>
 
-          {% else %}
+          {% elif action == 'assign' %}
+
+	  <form method="POST" action="{{ url_for('project', username = username, project_id = info.project_id, action = 'assign') }}">
+	    <p>ID: #{{ info.project_id }}</p>
+	    <p>{{ info.title }}</p>
+	    <p>{{ info.version }}</p>
+	    <input type="text" name="username"></input>
+	    <input type="submit"></input>
+	  </form>
+
+	  {% else %}
 
           <form method="POST" action="{{ url_for('projects', username = username) }}">
             <input name="title" type="text" placeholder="Title">

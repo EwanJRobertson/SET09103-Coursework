@@ -75,6 +75,13 @@
       </div>
 
       {% if type == 'issues' %}
+      <div>
+	<a class="btn" href="{{ url_for('project', username = username, project_id = project_id, action = 'assign') }}">Assign User</a>
+      </div>
+      <form method="POST" action="{{ url_for('project', username = username, project_id = project_id, action = 'delete') }}">
+        <input type="submit" value="Leave Project">
+      </form>
+
       <div class="bg-light py-2 col-4" style="outline-style:solid; border-radius:0.5pc;">
         <ul class="list-unstyled">
           <li class="container bg-white">Project ID: #{{ info.project_id }}</li>
