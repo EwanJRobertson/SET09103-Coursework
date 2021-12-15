@@ -88,7 +88,6 @@ def new_project(title, version, username):
 def get_project_info(project_id, username):
     # initialise connection
     db = get_db()
-    db.row_factory = sqlite3.Row
     cursor = db.cursor()
 
     # ensure project id is an integer
@@ -116,7 +115,10 @@ def get_project_info(project_id, username):
         """, [project_id]).fetchall()
     
     # return json object
-    return jsonify(records = json.dumps([dict(row) for row in query_results]))
+    print(query_results)
+    foo= jsonify(records = json.dumps([dict(row) for row in query_results]))
+    print(foo)
+    return foo
 
 # get projects users
 def get_project_users(project_id, username):
@@ -166,13 +168,10 @@ def is_user_linked(username, project_id):
 def get_project_issues(project_id, search, order, username):
     # initialise connection
     db = get_db()
-    db.row_factory = sqlite3.Row
     cursor = db.cursor()
 
     # check project id is an integer
-    try:
-        project_id = int(project_id)
-    except:
+    if not isinstance(project_id, int):
         return jsonify(response ='project ID must be an integer')
     
     # get order column
@@ -196,8 +195,7 @@ def get_project_issues(project_id, search, order, username):
         WHERE project_id == ?
         ORDER BY ?
         ;
-        """, [project_id, order]).fetchall()
-    
+        """, [project_id, order])
     return jsonify(records = json.dumps([dict(row) for row in query_results]))
 
 # edit existing project
@@ -356,25 +354,20 @@ def new_issue(project_id, title, description, type_of_issue, version_introduced,
     cursor = db.cursor()
 
     # check project id is an integer
-    try:
-        project_id = int(project_id)
-    except:
+    if not isinstance(project_id, int):
         return jsonify(response ='project ID must be an integer')
     
     # check priority level is empty string or an integer
-    try:
-        priority_level = int(priority_level)
-    except:
-        if priority_level != '':
-            return jsonify(response ='priority level must be an empty string or an integer')
-    
+    if not isinstance(priority_level, int) or priority_level == '':
+        return jsonify(response ='priority level must be an empty string or an integer')
+
     # check project exists
     if cursor.execute("""
         SELECT 1
         FROM projects
         WHERE project_id == ?
         ;
-        """, [project_id]).fetchall() is []:
+        """, [project_id]) is None:
         return jsonify(response ='project does not exist')
     
     # check user is linked to project
@@ -384,7 +377,7 @@ def new_issue(project_id, title, description, type_of_issue, version_introduced,
         WHERE username == ?
             AND project_id == ?
         ;
-        """, [username, project_id]).fetchall() is []:
+        """, [username, project_id]) is None:
         return jsonify(response ='user is not on this project')
 
     # get next unique issue id value for project
@@ -400,7 +393,7 @@ def new_issue(project_id, title, description, type_of_issue, version_introduced,
     # function to get date from system
     from datetime import datetime
     date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    
+
     # insert new issue into database
     cursor.execute("""
         INSERT INTO issues
@@ -413,7 +406,6 @@ def new_issue(project_id, title, description, type_of_issue, version_introduced,
 def get_issue(project_id, issue_id, username):
     # initalise connection
     db = get_db()
-    db.row_factory = sqlite3.Row
     cursor = db.cursor()
 
     # check user is linked with project
@@ -423,7 +415,7 @@ def get_issue(project_id, issue_id, username):
         WHERE username == ?
             AND project_id == ?
         ;
-        """, [username, project_id]).fetchall() is []:
+        """, [username, project_id]) is None:
         return jsonify(response ='user is not on this project')
 
     # get issue
@@ -434,7 +426,7 @@ def get_issue(project_id, issue_id, username):
             AND issue_id == ?
         ;
         """, [project_id, issue_id])
-    return jsonify(record = json.dumps([dict(row) for row in query_results]))
+    return jsonify(records = query_results)
 
 # edit issue
 def edit_issue(project_id, issue_id, title, description, type_of_issue, version_introduced, username, priority_level, status):

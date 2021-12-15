@@ -58,8 +58,8 @@ def requires_login(f):
 def requires_assigned_to_project(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        if not db_operations.is_user_linked(kwargs['user'], kwargs['project_id']):
-            return redirect(url_for('user', username = kwargs['user']))
+        if not db_operations.is_user_linked(kwargs['username'], kwargs['project_id']):
+            return redirect(url_for('user', username = kwargs['username']))
         return f(*args, **kwargs)
     return decorated
 
@@ -128,7 +128,8 @@ def projects(username):
             if request.args and request.args.get('action') == 'new':
                 return render_template('item.html', username = username, type = 'project', action = 'new' )
             else:
-                return render_template('list_view.html', username = username, type = 'user', action = 'view', records = json.loads(db_operations.get_projects(username, '', '').json['records']))
+                projects = json.loads(db_operations.get_projects(username, '', '').json['records'])
+                return render_template('list_view.html', username = username, type = 'projects', action = 'view', records = projects)
         except Exception as e:
             print(e)
             return redirect(url_for('login'))
@@ -157,25 +158,28 @@ def project(username, project_id):
     
     else:
         try:
-            search, order = ''
+            search = ''
+            order = ''
             if request.args and request.args.get('search'):
                 order = request.args.get('search')
             if request.args and request.args.get('order'):
                 order = request.args.get('order')
-
-            info = db_operations.get_project_info(project_id, username)
-            if info is None:
+        
+            info = json.loads(db_operations.get_project_info(project_id, username).json['records'])
+            if info is []:
                 return redirect(url_for('user', username = username))
 
-            projects = json.loads(db_operations.get_project_issues(project_id, search, order, username).json['records'])
-
-            if request.args and request.args.get('action') == 'view':
-                return render_template('list_view.html', type = 'project', action = 'view', records = projects, info = info)
-            elif request.args and request.args.get('action') == 'new':
-                return render_template('item.html', type = 'issue', action = 'new')
+            
+            issues = json.loads(db_operations.get_project_issues(project_id, search, order, username).json['records'])
+            
+            if request.args and request.args.get('action') == 'new':
+                return render_template('item.html', username = username, project_id = project_id, type = 'issue', action = 'new')
+            elif request.args and request.args.get('action') == 'edit':
+                return render_template('item.html', username = username, type = 'project', action = 'edit', info = info)
             else:
-                return render_template('item.html', type = 'project', action = 'edit', record = info)
-        except:
+                return render_template('list_view.html', type = 'issues', username = username, action = 'view', records = issues, project_id = project_id, info = info)
+        except Exception as e:
+            print(e)
             return redirect(url_for('user', username = username))
 
 # issue page
@@ -196,11 +200,11 @@ def issue(username, project_id, issue_id):
 
     else:
         try:
-            issue = db_operations.get_issue(project_id, issue_id, username)
-            if request.args.get('action') == 'view':
-                return render_template('item.html', type = 'project', action = 'view', record = issue)
+            issue = json.loads(db_operations.get_issue(project_id, issue_id, username).json['record'])[0]
+            if request.args and request.args.get('action') == 'edit':
+                return render_template('item.html', type = 'issue', username = username, action = 'edit', record = issue)
             else:
-                return render_template('item.html', type = 'project', action = 'edit', record = issue)
+                return render_template('item.html', type = 'issue', username = username, action = 'view', record = issue)
         except:
             return redirect(url_for('user', username = username))
 

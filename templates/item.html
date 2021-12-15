@@ -27,7 +27,7 @@
             <li><a href="{{ url_for('login') }}" class="link">Login</a></li>
             <li><a href="{{ url_for('user', username = username) }}" class="link">{{ username }}</a></li>
             {% if type == 'issue' %}
-            <li class="active"><a href="{{ url_for('project', username = username, project_id = record.project_id) }}" class="link">Project</a></li>
+            <li class="active"><a href="{{ url_for('project', username = username, project_id = project_id) }}" class="link">Project</a></li>
             {% endif %}
           </ul>
         </div>
@@ -88,7 +88,7 @@
 
           {% else %}
 
-          <form method="POST" action="{{ url_for('issue', username = username, project_id = record.project_id, issue_id = record.issue_id) }}">
+          <form method="POST" action="{{ url_for('project', username = username, project_id = project_id) }}">
             <input name="title" type="text" placeholder="Title"></input>
             <input name="description" type="text" placeholder="Description">
             <input name="type_of_issue" type="text" placeholder="Type of Issue">

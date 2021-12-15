@@ -26,8 +26,8 @@
           <ul class="nav navbar-nav list-group list-group-horizontal p-2">
             <li><a href="{{ url_for('login') }}" class="link">Login</a></li>
             <li><a href="{{ url_for('user', username = username) }}" class="link">{{ username }}</a></li>
-            {% if type == 'project' %}
-            <li class="active"><a href="{{ url_for('project', username = username, project_id = records[0].project_id) }}" class="link">Project</a></li>
+            {% if type == 'issues' %}
+            <li class="active"><a href="{{ url_for('project', username = username, project_id = project_id) }}" class="link">Project</a></li>
             {% endif %}
           </ul>
         </div>
@@ -45,8 +45,13 @@
             </form>
           </div>
         </div>
+	{% if type == 'projects' %}
         <a class="btn px-4 py-2 my-3 col-4" style="background-color: #1aff00; border-style:solid; border-radius:0.5pc;"
             href="{{ url_for('projects', username = username, action = 'new') }}">New Project</a>
+	{% else %}
+	<a class="btn px-4 py-2 my-3 col-4" style="background-color: #1aff00; border-style:solid; border-radius:0.5pc;"
+	    href="{{ url_for('project', username = username, project_id = project_id, action = 'new') }}">New Issue</a>
+	{% endif %}
       </div>
 
       {% if type == 'issues' %}
@@ -55,13 +60,17 @@
       <div class="bg-light py-2 col-8" style="outline-style:solid; border-radius:0.5pc;">
       {% endif %}
         <ul class="list-unstyled">
-          {% for record in records %}
-            {% if type == 'user' %}
+	  {% if records is defined and records|length > 0 %}
+	  {% for record in records %}
+	  <li>
+            {% if type == 'projects' %}
 	    <a href="{{ url_for('project', username = username, project_id = record.project_id) }}" class="link container bg-white">#{{record.project_id}} {{record.title}}</a>
             {% else %}
-            <a href="{{ url_for('project', username = username, project_id = record.project_id, issue_id = issue_id) }}" class="link container bg-white">{{ record.title }} {{ record.status }} {{ record.priority }}</a>
+            <a href="{{ url_for('issue', username = username, project_id = project_id, issue_id = record.issue_id) }}" class="link container bg-white">{{ record.title }} {{ record.status }} {{ record.priority }}</a>
             {% endif %}
+	  </li>
           {% endfor %}
+	  {% endif %}
         </ul>
       </div>
 
