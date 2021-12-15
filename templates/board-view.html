@@ -26,12 +26,13 @@
           <ul class="nav navbar-nav list-group list-group-horizontal p-2">
             <li><a href="{{ url_for('login') }}" class="link">Login</a></li>
             <li><a href="{{ url_for('user', username = username) }}" class="link">{{ username }}</a></li>
-            {% if type == 'issues' %}
             <li class="active"><a href="{{ url_for('project', username = username, project_id = project_id) }}" class="link">Project</a></li>
-            {% endif %}
           </ul>
         </div>
       </nav>
+      <form method="GET" action="{{ url_for('project', username = username, project_id = project_id) }}">
+        <input type="submit" value="List View">
+      </form>
     </header>
 
     <main class="container p-2">
@@ -45,38 +46,59 @@
             </form>
           </div>
         </div>
-	{% if type == 'projects' %}
+	    
+      <div>
         <a class="btn px-4 py-2 my-3 col-4" style="background-color: #1aff00; border-style:solid; border-radius:0.5pc;"
-            href="{{ url_for('projects', username = username, action = 'new') }}">New Project</a>
-	{% else %}
-	<a class="btn px-4 py-2 my-3 col-4" style="background-color: #1aff00; border-style:solid; border-radius:0.5pc;"
-	    href="{{ url_for('project', username = username, project_id = project_id, action = 'new') }}">New Issue</a>
-	{% endif %}
+	        href="{{ url_for('project', username = username, project_id = project_id, action = 'new') }}">New Issue</a>
       </div>
 
-      {% if type == 'issues' %}
-      <div class="bg-light py-2" style="outline-style:solid; border-radius:0.5pc;">
-      {% else %}
       <div class="bg-light py-2 col-8" style="outline-style:solid; border-radius:0.5pc;">
-      {% endif %}
-        <ul class="list-unstyled">
-	  {% if records is defined and records|length > 0 %}
-	  {% for record in records %}
-	  <li>
-            {% if type == 'projects' %}
-	    <a href="{{ url_for('project', username = username, project_id = record.project_id) }}" class="link container bg-white">#{{record.project_id}} {{record.title}}</a>
-            {% else %}
-            <a href="{{ url_for('issue', username = username, project_id = project_id, issue_id = record.issue_id) }}" class="link container bg-white">{{ record.title }} {{ record.status }} {{ record.priority }}</a>
-            {% endif %}
-	  </li>
-          {% endfor %}
-	  {% endif %}
+	      {% if records is defined and records|length > 0 %}
+        <ul class="list-unstyled"></ul>
+	      {% for record in records if status == 'backlog' %}
+	      <li>
+          <a href="{{ url_for('issue', username = username, project_id = project_id, issue_id = record.issue_id) }}" class="link container bg-white">{{ record.title }} {{ record.status }} {{ record.priority }}</a>
+        </li>
+        {% endfor %}
+        </ul>
+
+        <ul class="list-unstyled"></ul>
+	      {% for record in records if status == 'to do' %}
+	      <li>
+          <a href="{{ url_for('issue', username = username, project_id = project_id, issue_id = record.issue_id) }}" class="link container bg-white">{{ record.title }} {{ record.status }} {{ record.priority }}</a>
+        </li>
+        {% endfor %}
+        </ul>
+	      {% endif %}
+
+        <ul class="list-unstyled"></ul>
+	      {% for record in records if status == 'in progress' %}
+	      <li>
+          <a href="{{ url_for('issue', username = username, project_id = project_id, issue_id = record.issue_id) }}" class="link container bg-white">{{ record.title }} {{ record.status }} {{ record.priority }}</a>
+        </li>
+        {% endfor %}
+        </ul>
+
+        <ul class="list-unstyled"></ul>
+	      {% for record in records if status == 'in review' %}
+	      <li>
+          <a href="{{ url_for('issue', username = username, project_id = project_id, issue_id = record.issue_id) }}" class="link container bg-white">{{ record.title }} {{ record.status }} {{ record.priority }}</a>
+        </li>
+        {% endfor %}
+        </ul>
+
+        <ul class="list-unstyled"></ul>
+	      {% for record in records if status == 'done' %}
+	      <li>
+          <a href="{{ url_for('issue', username = username, project_id = project_id, issue_id = record.issue_id) }}" class="link container bg-white">{{ record.title }} {{ record.status }} {{ record.priority }}</a>
+        </li>
+        {% endfor %}
         </ul>
       </div>
 
       {% if type == 'issues' %}
       <div>
-	<a class="btn" href="{{ url_for('project', username = username, project_id = project_id, action = 'assign') }}">Assign User</a>
+	      <a class="btn" href="{{ url_for('project', username = username, project_id = project_id, action = 'assign') }}">Assign User</a>
       </div>
       <form method="POST" action="{{ url_for('project', username = username, project_id = project_id, action = 'delete') }}">
         <input type="submit" value="Leave Project">

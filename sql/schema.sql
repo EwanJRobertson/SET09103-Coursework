@@ -34,7 +34,7 @@ CREATE TABLE issues (
     version_introduced text,
     username text,
     priority_level int,
-    status int NOT NULL,
+    status text NOT NULL,
     PRIMARY KEY(project_id, issue_id),
     FOREIGN KEY(username) REFERENCES users_projects_link(username)
 );

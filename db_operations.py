@@ -196,49 +196,6 @@ def get_project_issues(project_id, search, username):
     
     return jsonify(records = json.dumps([dict(row) for row in query_results]))
 
-# edit existing project
-def edit_project(id, title, version):
-    # initalise connection
-    db = get_db()
-    cursor = db.cursor()
-
-    # check project id is an integer
-    if not isinstance(id, int):
-        return jsonify(response ='project ID must be an integer')
-
-    # get initial project
-    str = ''
-    for row in cursor.execute("""
-        SELECT *
-        FROM projects
-        WHERE project_id == ?
-        ;
-        """, [id]):
-        str = row
-    
-    # create array of new values
-    options = [id, title, version]
-    # determine replacement project values
-    current = str[1:len(str) -2].split('', '')
-    new = []
-    for option in options:
-        if option != '':
-            new.append(option)
-        else:
-            new.append[current[len(new)]]
-    new.append(id)
-    
-    # update project
-    cursor.execute("""
-        UPDATE projects
-        SET project_id = ?
-            title = ?
-            version = ?
-        WHERE project_id == ?
-        ;
-        """, new)
-    db.commit()
-
 # add user to project
 def assign_project(username, project_id):
     # initalise connection
@@ -343,7 +300,7 @@ def leave_project(username, project_id):
     db.commit()
 
 # create new issue
-def new_issue(project_id, title, description, type_of_issue, version_introduced, username, priority_level, status):
+def new_issue(project_id, title, description, type_of_issue, version_introduced, username, priority_level):
     # initalise connection
     db = get_db()
     cursor = db.cursor()
@@ -397,9 +354,9 @@ def new_issue(project_id, title, description, type_of_issue, version_introduced,
     # insert new issue into database
     cursor.execute("""
         INSERT INTO issues
-        VALUES(?,?,?,?,?,?,?,?,?,?)
+        VALUES(?,?,?,?,?,?,?,?,?,'backlog')
         ;
-        """, [project_id, issue_id, title, description, type_of_issue, date, version_introduced, username, priority_level, status])
+        """, [project_id, issue_id, title, description, type_of_issue, date, version_introduced, username, priority_level])
     db.commit()
 
 # get issue
@@ -428,133 +385,3 @@ def get_issue(project_id, issue_id, username):
         ;
         """, [project_id, issue_id])
     return jsonify(record = json.dumps([dict(row) for row in query_results]))
-
-# edit issue
-def edit_issue(project_id, issue_id, title, description, type_of_issue, version_introduced, username, priority_level, status):
-    # initalise connection
-    db = get_db()
-    cursor = db.cursor()
-
-    # check project id is an integer
-    if not isinstance(project_id, int):
-        return jsonify(response ='project ID must be an integer')
-    
-    # check user is linked to project
-    if cursor.execute("""
-        SELECT 1
-        FROM users_projects_link
-        WHERE username == ?
-            AND project_id == ?
-        ;
-        """, [username, project_id]) is None:
-        return jsonify(response ='user is not on this project')
-    
-    # check issue id is an integer
-    if not isinstance(issue_id, int):
-        return jsonify(response ='issue ID must be an integer')
-
-    # check issue exists
-    if cursor.execute("""
-        SELECT 1
-        FROM issues
-        WHERE project_id == ?
-            AND issue_id == ?
-        ;
-        """, [project_id, issue_id]) is None:
-        return jsonify(response ='issue does not exist')
-    
-    # check priority level is empty string or an integer
-    if not isinstance(priority_level, int) or priority_level == '':
-        return jsonify(response ='priority level must be an empty string or an integer')
-    
-    # get initial issue
-    str = ""
-    for row in cursor.execute("""
-        SELECT *
-        FROM issues
-        WHERE project_id == ?
-            AND issue_id == ?
-        ;
-        """, [project_id, issue_id]):
-        str = row
-    
-    # create array of new values
-    # function to get date from system
-    from datetime import datetime
-    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    options = [project_id, issue_id, title, description, type_of_issue, date, version_introduced, username, priority_level, status]
-    # determine replacement issue values
-    current = str[1:len(str) -2].split(', ')
-    new = []
-    for option in options:
-        if option != "":
-            new.append(option)
-        else:
-            new.append[current[len(new)]]
-    new.append(project_id)
-    new.append(issue_id)
-    
-    # update issue
-    cursor.execute("""
-        UPDATE issues
-        SET project_id = ?
-            issue_id = ?
-            title = ?
-            description = ?
-            type_of_issue = ?
-            date = ?
-            version_introduced = ?
-            username = ?
-            priority_level = ?
-            status = ?
-        WHERE project_id == ?
-            AND issue_id == ?
-        ;
-        """, new)
-    db.commit()
-
-    return jsonify(response ='project updated')
-
-# delete issue
-def delete_issue(project_id, issue_id, username):
-    # initalise connection
-    db = get_db()
-    cursor = db.cursor()
-
-    # check project id is an integer
-    if not isinstance(project_id, int):
-        return jsonify(response ='project ID must be an integer')
-    
-    # check user is linked to project
-    if cursor.execute("""
-        SELECT 1
-        FROM users_projects_link
-        WHERE username == ?
-            AND project_id == ?
-        ;
-        """, [username, project_id]) is None:
-        return jsonify(response ='user is not on this project')
-    
-    # check issue id is an integer
-    if not isinstance(issue_id, int):
-        return jsonify(response ='issue ID must be an integer')
-
-    # check issue exists
-    if cursor.execute("""
-        SELECT 1
-        FROM issues
-        WHERE project_id == ?
-            AND issue_id == ?
-        ;
-        """, [project_id, issue_id]) is None:
-        return jsonify(response ='issue does not exist')
-    
-    # remove issue
-    cursor.execute("""
-        DELETE FROM issues
-        WHERE project_id == ?
-            AND issue_id == ?
-        ;
-        """, [project_id, issue_id])
-    db.commit()
-    jsonify(response ='issue deleted')

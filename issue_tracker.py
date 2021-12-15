@@ -6,11 +6,10 @@ import bcrypt
 
 from logging.handlers import RotatingFileHandler
 from functools import wraps
-from flask import Flask, g, redirect, render_template, request, session, url_for
+from flask import Flask, g, redirect, render_template, request, session, url_for, flash
 
 # define app
 app = Flask(__name__)
-app.secret_key = 'secret'
 
 # import operations
 import db_operations
@@ -27,7 +26,7 @@ def init(app):
         app.config['ip_address'] = config.get('config', 'ip_address')
         app.config['port'] = config.get('config', 'port')
         app.config['url'] = config.get('config', 'url')
-        app.config['secret_key'] = config.get('config', 'secret_key')
+        app.secret_key = config.get('config', 'secret_key')
 
         app.config['log_file'] = config.get('logging', 'name')
         app.config['log_location'] = config.get('logging', 'location')
@@ -110,7 +109,8 @@ def user(username):
         try:
             if request.args['change-password'] == 'True':
                 return render_template('login.html', type = 'edit')
-        except:
+        except Exception as e:
+                flash(e)
                 return render_template('user.html', username = username)
 
 # user projects
@@ -129,13 +129,18 @@ def projects(username):
                 return render_template('item.html', username = username, type = 'project', action = 'new')
             else:
                 search = ''
+                order = ''
            
                 if request.args and request.args.get('q'):
                     search = request.args.get('q')
-                projects = json.loads(db_operations.get_projects(username, search).json['records'])
+                if request.form and request.form['order']:
+                    order = request.form['order']
+                print(search)
+                print(order)
+                projects = json.loads(db_operations.get_projects(username, search, order).json['records'])
                 return render_template('list_view.html', username = username, type = 'projects', action = 'view', records = projects)
         except Exception as e:
-            print(e)
+            flash(e)
             return redirect(url_for('login'))
 
 # project page
@@ -182,11 +187,9 @@ def project(username, project_id):
                 if request.args and request.args.get('search'):
                     search = request.args.get('search')
                 issues = json.loads(db_operations.get_project_issues(project_id, search, username).json['records'])
-                if request.args and request.args.get('view') == 'board':
-                    return render_template('board_view.html', username = username, records = issues, project_id = project_id, info = info[0])
                 return render_template('list_view.html', type = 'issues', username = username, action = 'view', records = issues, project_id = project_id, info = info[0])
         except Exception as e:
-            print(e)
+            flash(e)
             return redirect(url_for('user', username = username))
 
 # issue page
@@ -212,13 +215,14 @@ def issue(username, project_id, issue_id):
                 return render_template('item.html', type = 'issue', username = username, action = 'edit', record = issue)
             else:
                 return render_template('item.html', type = 'issue', username = username, action = 'view', record = issue)
-        except:
+        except Exception as e:
+            flash(e)
             return redirect(url_for('user', username = username))
 
 # error page
-@app.route('/error', methods = ['GET'])
-def error():
-    print('bridge closed')
+@app.errorhandler(404)
+def page_not_error(error):
+    return 'Could not find requested page.', 404
 
 if __name__ == "__main__":
     init(app)

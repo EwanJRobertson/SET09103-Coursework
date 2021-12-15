@@ -92,7 +92,13 @@
             <input name="version_introduced" type="text">{{ record.version_introduced }}</input>
             <input name="username" type="text">{{ record.username }}</input>
             <input name="priority_level" type="text">{{ record.priority_level }}</input>
-            <input name="status" type="text">{{ record.status }}</input>
+            <select name="status">
+              <option value="backlog">Backlog</option>
+              <option value="to do">To Do</option>
+              <option value="in progress">In Progress</option>
+              <option value="in review">In Review</option>
+              <option value="done">Done</option>
+            </select>
             <input type="submit">
           </form>
 
