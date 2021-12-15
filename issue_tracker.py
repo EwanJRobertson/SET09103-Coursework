@@ -129,15 +129,10 @@ def projects(username):
                 return render_template('item.html', username = username, type = 'project', action = 'new')
             else:
                 search = ''
-                order = ''
            
                 if request.args and request.args.get('q'):
                     search = request.args.get('q')
-                if request.form and request.form['order']:
-                    order = request.form['order']
-                print(search)
-                print(order)
-                projects = json.loads(db_operations.get_projects(username, search, order).json['records'])
+                projects = json.loads(db_operations.get_projects(username, search).json['records'])
                 return render_template('list_view.html', username = username, type = 'projects', action = 'view', records = projects)
         except Exception as e:
             print(e)
@@ -184,12 +179,11 @@ def project(username, project_id):
                 return render_template('item.html', username = username, type = 'project', action = 'assign', info = info[0])
             else:
                 search = ''
-                order = ''
                 if request.args and request.args.get('search'):
                     search = request.args.get('search')
-                if request.args and request.args.get('order'):
-                    order = request.args.get('order')
-                issues = json.loads(db_operations.get_project_issues(project_id, search, order, username).json['records'])
+                issues = json.loads(db_operations.get_project_issues(project_id, search, username).json['records'])
+                if request.args and request.args.get('view') == 'board':
+                    return render_template('board_view.html', username = username, records = issues, project_id = project_id, info = info[0])
                 return render_template('list_view.html', type = 'issues', username = username, action = 'view', records = issues, project_id = project_id, info = info[0])
         except Exception as e:
             print(e)

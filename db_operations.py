@@ -33,15 +33,11 @@ def new_user(username, password_hash):
     return True
 
 # get all projects that a user is a part of
-def get_projects(username, search, order):
+def get_projects(username, search):
     # initialise connection
     db = get_db()
     db.row_factory = sqlite3.Row
     cursor = db.cursor()
-
-    # get order column
-    if order == '':
-        order = 'NULL'
 
     # execute query
     query_results = cursor.execute("""
@@ -51,9 +47,8 @@ def get_projects(username, search, order):
             ON projects.project_id = users_projects_link.project_id
         WHERE username == ?
             AND title LIKE ?
-        ORDER BY ?
         ;
-        """, [username, search + '%', order]).fetchall()
+        """, [username, search + '%']).fetchall()
 
     # return json objects
     return jsonify(records = json.dumps([dict(row) for row in query_results]))
@@ -168,7 +163,7 @@ def is_user_linked(username, project_id):
     return False
 
 # get issues associated with project
-def get_project_issues(project_id, search, order, username):
+def get_project_issues(project_id, search, username):
     # initialise connection
     db = get_db()
     db.row_factory = sqlite3.Row
@@ -179,10 +174,6 @@ def get_project_issues(project_id, search, order, username):
         project_id = int(project_id)
     except:
         return jsonify(response ='project ID must be an integer')
-    
-    # get order column
-    if order == '':
-        order = 'NULL'
     
     # check user is linked to project
     if cursor.execute("""
@@ -200,9 +191,8 @@ def get_project_issues(project_id, search, order, username):
         FROM issues
         WHERE project_id == ?
             AND title LIKE ?
-        ORDER BY ?
         ;
-        """, [project_id, search + '%', order]).fetchall()
+        """, [project_id, search + '%']).fetchall()
     
     return jsonify(records = json.dumps([dict(row) for row in query_results]))
 
