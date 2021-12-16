@@ -41,6 +41,7 @@
         <a class="btn btn-outline-primary mx-4"
                   href="{{ url_for('project', username = username, project_id = project_id, issue_id = record.issue_id, action = 'edit') }}">Edit Issue</a>
       </div>
+      {% endif %}
 
       <div class="py-2" style="outline-style:solid; border-radius:0.5pc;">
         {% if type == 'project' %}
