@@ -12,14 +12,14 @@ from flask import Flask, g, redirect, render_template, request, session, url_for
 app = Flask(__name__)
 
 # import operations
-import db_operations
-from login import change_password, login_user, get_hash
+import issue_tracker.db_operations as db_operations
+from issue_tracker.login import change_password, login_user, get_hash
 
 # initialise app
 def init(app):
     config = configparser.ConfigParser()
     try:
-        config_location = 'etc/defaults.cfg'
+        config_location = 'issue_tracker/etc/defaults.cfg'
         config.read(config_location)
     
         app.config['DEBUG'] = config.get('config', 'debug')
@@ -209,9 +209,9 @@ def issue(username, project_id, issue_id):
         try:
             issue = json.loads(db_operations.get_issue(project_id, issue_id, username).json['record'])[0]
             if request.args and request.args.get('action') == 'edit':
-                return render_template('item.html', type = 'issue', username = username, action = 'edit', record = issue)
+                return render_template('item.html', type = 'issue', username = username, project_id = project_id, action = 'edit', record = issue)
             else:
-                return render_template('item.html', type = 'issue', username = username, action = 'view', record = issue)
+                return render_template('item.html', type = 'issue', username = username, project_id = project_id, action = 'view', record = issue)
         except Exception as e:
             flash(e)
             return redirect(url_for('user', username = username))

@@ -3,9 +3,9 @@ import json
 import sqlite3
 from flask import session, jsonify
 
-from issue_tracker import app
+from issue_tracker.issue_tracker import app
 
-from db import get_db
+from issue_tracker.db import get_db
 
 def login_user(username, password_hash):
     # initialise connection

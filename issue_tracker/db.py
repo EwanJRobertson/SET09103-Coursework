@@ -2,10 +2,10 @@
 import sqlite3
 from flask import g
 
-from issue_tracker import app
+from issue_tracker.issue_tracker import app
 
 # define location of database
-db_location = 'var/issue_tracker.db'
+db_location = 'issue_tracker/var/issue_tracker.db'
 
 # get instance of the database
 def get_db():

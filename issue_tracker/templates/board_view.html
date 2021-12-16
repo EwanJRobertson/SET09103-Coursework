@@ -61,8 +61,8 @@
       <div class="row g-1">
         <div class="col-3">
           <h2 class="fw-bold text-info">Backlog</h2>
-          <ul class="list-group d-flex justify-content-between align-items-start"">
-            {% for record in records if status == 'backlog' %}
+          <ul class="list-group d-flex justify-content-between align-items-start">
+            {% for record in records if record.status == 'backlog' %}
             <li class="list-group-item bg-info">
               <div class="ms-2 me-auto">
                 <div class="fw-bold">
@@ -77,8 +77,8 @@
 
         <div class="col-2">
           <h2 class="fw-bold text-danger">To do</h2>
-          <ul class="list-group d-flex justify-content-between align-items-start"">
-            {% for record in records if status == 'to do' %}
+          <ul class="list-group d-flex justify-content-between align-items-start">
+            {% for record in records if record.status == 'to do' %}
             <li class="list-group-item bg-danger">
               <div class="ms-2 me-auto">
                 <div class="fw-bold">
@@ -93,8 +93,8 @@
 
         <div class="col-2">
           <h2 class="fw-bold text-warning">In progress</h2>
-          <ul class="list-group d-flex justify-content-between align-items-start"">
-            {% for record in records if status == 'in progress' %}
+          <ul class="list-group d-flex justify-content-between align-items-start">
+            {% for record in records if record.status == 'in progress' %}
             <li class="list-group-item bg-warning">
               <div class="ms-2 me-auto">
                 <div class="fw-bold">
@@ -109,8 +109,8 @@
 
         <div class="col-2">
           <h2 class="fw-bold text-dark">Review</h2>
-          <ul class="list-group d-flex justify-content-between align-items-start"">
-            {% for record in records if status == 'in review' %}
+          <ul class="list-group d-flex justify-content-between align-items-start">
+            {% for record in records if record.status == 'in review' %}
             <li class="list-group-item">
               <div class="ms-2 me-auto">
                 <div class="fw-bold">
@@ -125,8 +125,8 @@
 
         <div class="col">
           <h2 class="fw-bold text-success">Done</h2>
-          <ul class="list-group d-flex justify-content-between align-items-start"">
-            {% for record in records if status == 'done' %}
+          <ul class="list-group d-flex justify-content-between align-items-start">
+            {% for record in records if record.status == 'done' %}
             <li class="list-group-item bg-success">
               <div class="ms-2 me-auto">
                 <div class="fw-bold">
