@@ -182,6 +182,8 @@ def project(username, project_id):
                 if request.args and request.args.get('search'):
                     search = request.args.get('search')
                 issues = json.loads(db_operations.get_project_issues(project_id, search, username).json['records'])
+                if request.args and request.args.get('view') == 'board':
+                    return render_template('board_view.html', username = username, records = issues, project_id = project_id, info = info[0])
                 return render_template('list_view.html', type = 'issues', username = username, action = 'view', records = issues, project_id = project_id, info = info[0])
         except Exception as e:
             flash(e)

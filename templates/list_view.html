@@ -31,7 +31,7 @@
             {% endif %}
           </ul>
           {% if type == 'issues' %}
-            <a href="{{ url_for('project', username = username, project_id = project_id) }}" class="link">Board View</a>
+            <a href="{{ url_for('project', username = username, project_id = project_id, view = 'board') }}" class="link">Board View</a>
             {% endif %}
         </div>
       </nav>
