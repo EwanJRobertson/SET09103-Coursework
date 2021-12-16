@@ -98,6 +98,7 @@ def new_user():
         return render_template('login.html', type = 'new user')
 
 # user page
+@app.route('/user/<username>', methods = ['GET', 'POST'])
 @requires_login
 def user(username):
     if request.method == 'POST':
@@ -107,11 +108,13 @@ def user(username):
 
     else:
         try:
-            if request.args['change-password'] == 'True':
+            if request.args and request.args['change-password'] == 'True':
                 return render_template('login.html', type = 'edit')
-        except Exception as e:
-                flash(e)
+            else:
                 return render_template('user.html', username = username)
+        except Exception as e:
+            flash(e)
+            return render_template('login.html')
 
 # user projects
 @app.route('/user/<username>/projects', methods = ['GET', 'POST'])
@@ -129,15 +132,9 @@ def projects(username):
                 return render_template('item.html', username = username, type = 'project', action = 'new')
             else:
                 search = ''
-                order = ''
-           
                 if request.args and request.args.get('q'):
                     search = request.args.get('q')
-                if request.form and request.form['order']:
-                    order = request.form['order']
-                print(search)
-                print(order)
-                projects = json.loads(db_operations.get_projects(username, search, order).json['records'])
+                projects = json.loads(db_operations.get_projects(username, search).json['records'])
                 return render_template('list_view.html', username = username, type = 'projects', action = 'view', records = projects)
         except Exception as e:
             flash(e)
