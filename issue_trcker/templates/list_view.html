@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    
+  <meta charset="utf-8">
+  <meta name="author" content="Ewan Robertson">
+  <title>Issue Tracker</title>
+
+  <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet"/>
+  <link href="{{ url_for('static', filename='css/issue_tracker.css') }}" rel="stylesheet"/>
+
+  <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+
+</head>
+
+<body class="">
+
+    <header class="bg-dark">
+      <div class="container">
+        <h1 class="display-5 fw-bold text-white">{{ username }}</h1>
+      </div>
+      <nav class="navbar navbar-default border-bottom border-5 border-info text-light">
+        <div class="container d-flex justify-content-between">
+          <ul class="nav navbar-nav list-group list-group-horizontal">
+            <li class="px-2"><a href="{{ url_for('login') }}" class="link">Login</a></li>
+            <li class="px-2"><a href="{{ url_for('user', username = username) }}" class="link text-light">{{ username }}</a></li>
+            {% if type == 'issues' %}
+            <li class="px-2 active"><a href="{{ url_for('project', username = username, project_id = project_id) }}" class="link text-light">Project</a></li>
+            {% endif %}
+          </ul>
+          {% if type == 'issues' %}
+            <a href="{{ url_for('project', username = username, project_id = project_id, view = 'board') }}" class="link">Board View</a>
+            {% endif %}
+        </div>
+      </nav>
+    </header>
+
+    <main class="container py-3">
+      <div class="row mb-4">
+        <div class="col-6">
+          <div class="bg-light border border-1 border-info rounded-3 p-2">
+            <form action="{{ url_for('projects', username = username) }}" method="GET">
+              <div class="row">
+                <div class="col-8">
+                  <input type="text" class="form-control my-3"  name="q" placeholder="Search">
+                </div>
+                <div class="col">
+                  <button type="submit" class="btn btn-primary my-3">Search</button>
+                </div>
+              </div>
+           </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="pb-3">
+	{% if type == 'projects' %}
+        <a class="btn btn-outline-primary mx-4"
+            href="{{ url_for('projects', username = username, action = 'new') }}">New Project</a>
+	{% else %}
+	      <a class="btn btn-outline-primary mx-4"
+	          href="{{ url_for('project', username = username, project_id = project_id, action = 'new') }}">New Issue</a>
+	{% endif %}
+      </div>
+
+      {% if type == 'issues' %}
+      <div class="pb-3 bg-light border border-1 border-info rounded-3 p-1">
+      {% else %}
+      <div class="pb-3 bg-light border border-1 border-info rounded-3 p-1">
+      {% endif %}
+        <ul class="list-group list-group-flush">
+	  {% if records is defined and records|length > 0 %}
+	  {% for record in records %}
+	  <li class="list-group-item">
+            {% if type == 'projects' %}
+	    <a href="{{ url_for('project', username = username, project_id = record.project_id) }}" class="btn btn-link">#{{record.project_id}} {{record.title}}</a>
+            {% else %}
+            <a href="{{ url_for('issue', username = username, project_id = project_id, issue_id = record.issue_id) }}" class="btn btn-link">{{ record.title }} {{ record.status }} {{ record.priority }}</a>
+            {% endif %}
+	  </li>
+          {% endfor %}
+	  {% endif %}
+        </ul>
+      </div>
+
+      {% if type == 'issues' %}
+      <div>
+	      <a class="btn btn-secondary" href="{{ url_for('project', username = username, project_id = project_id, action = 'assign') }}">Assign User</a>
+      </div>
+      <form method="POST" action="{{ url_for('project', username = username, project_id = project_id, action = 'delete') }}">
+        <button type="submit" class="btn btn-danger">Leave Project</button>
+      </form>
+
+      <div class="my-3">
+        <div class="row">
+          <div class="col-6">
+            <div class="bg-light border border-1 border-info rounded-3 p-1">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">Project ID: #{{ info.project_id }}</li>
+              <li class="list-group-item">Version: {{ info.version }}</li>
+            </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+    </main>
+
+    <footer class="container">
+    </footer>
+
+</body>

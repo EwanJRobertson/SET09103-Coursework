@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    
+  <meta charset="utf-8">
+  <meta name="author" content="Ewan Robertson">
+  <title>Issue Tracker</title>
+
+  <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet"/>
+  <link href="{{ url_for('static', filename='css/issue_tracker.css') }}" rel="stylesheet"/>
+
+  <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+
+</head>
+
+<body>
+
+    <header class="bg-dark">
+      <div class="container">
+        <h1 class="display-5 fw-bold text-white">{{ type }}</h1>
+      </div>
+      <nav class="navbar navbar-default border-bottom border-5 border-info">
+        <div class="container">
+          <ul class="nav navbar-nav list-group list-group-horizontal">
+            <li class="px-2"><a href="{{ url_for('login') }}" class="link text-light">Login</a></li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container py-3">
+      <div class="row">
+        <div class="col-6">
+          {% if type == 'login' %}
+          <form method="POST" action="{{ url_for('login') }}">
+          {% elif type == 'new user' %}
+          <form method="POST" action="{{ url_for('new_user') }}">
+          {% else %}
+          <form method="POST" action="{{ url_for('username', username = username) }}">
+          {% endif %}
+
+            <input type="text" name="username" placeholder="Username" class="form-control mb-3" required>
+
+            <input type="password" name="password" placeholder="Password" class="form-control mb-3" required>
+
+            {% if type == 'change password' %}
+            <input type="password" name="new_password" placeholder="Confirm Password" class="form-control mb-3" required>
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary mb-3">Login</button>
+          {% if type == 'login' %}
+          <a href="./new-user" class="btn btn-secondary mb-3 mx-3">New User</a>
+          {% endif %}
+        </form>
+
+        </div>
+      </div>
+    </main>
+
+    <footer class="container">
+    </footer>
+
+</body>
