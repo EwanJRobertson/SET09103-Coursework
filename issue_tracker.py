@@ -21,17 +21,18 @@ def init(app):
     try:
         config_location = 'etc/defaults.cfg'
         config.read(config_location)
-
+    
         app.config['DEBUG'] = config.get('config', 'debug')
         app.config['ip_address'] = config.get('config', 'ip_address')
         app.config['port'] = config.get('config', 'port')
         app.config['url'] = config.get('config', 'url')
         app.secret_key = config.get('config', 'secret_key')
-
-        app.config['log_file'] = config.get('logging', 'name')
+        
+        app.config['log_file'] = config.get('logging', 'file')
         app.config['log_location'] = config.get('logging', 'location')
         app.config['log_level'] = config.get('logging', 'level')
-    except:
+    except Exception as e:
+        print(e)
         print('Could not read config file from ' + config_location)
 
 # initialise logging
@@ -97,7 +98,6 @@ def new_user():
         return render_template('login.html', type = 'new user')
 
 # user page
-@app.route('/user/<username>', methods = ['GET', 'POST'])
 @requires_login
 def user(username):
     if request.method == 'POST':
@@ -224,8 +224,12 @@ def issue(username, project_id, issue_id):
 def page_not_error(error):
     return 'Could not find requested page.', 404
 
+init(app)
+#logs(app)
+
 if __name__ == "__main__":
     init(app)
     logs(app)
     app.run(host = app.config['ip_address'],
             port = int(app.config['port']))
+# import python libraries
