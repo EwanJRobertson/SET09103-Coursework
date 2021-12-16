@@ -190,11 +190,11 @@ def project(username, project_id):
             return redirect(url_for('user', username = username))
 
 # issue page
-@app.route('/user/<username>/<project_id>/<issue_id>', methods = ['GET', 'PATCH'])
+@app.route('/user/<username>/<project_id>/<issue_id>', methods = ['GET', 'POST'])
 @requires_login
 @requires_assigned_to_project
 def issue(username, project_id, issue_id):
-    if request.method == 'PATCH':
+    if request.method == 'POST':
         title = request.form['title']
         description = request.form['description']
         type_of_issue = request.form['type_of_issue']

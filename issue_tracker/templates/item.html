@@ -35,6 +35,12 @@
     </header>
 
     <main class="container py-3">
+      {% if type == 'issue' and action == 'view' %}
+      <div class="pb-3">
+        <a class="btn btn-outline-primary mx-4"
+            href="{{ url_for('issue', username = username, project_id = project_id, issue_id = record.issue_id, action = 'edit') }}">Edit Issue</a>
+      </div>
+      {% endif %}
 
       <div class="bg-light border border-1 border-info rounded-3 p-2">
         {% if type == 'project' %}
@@ -69,18 +75,18 @@
               <label for="id" class="form-label">ID:</label>
               <div class="input-group">
                 <div class="input-group-text">#</div>
-                <input type="text" class="form-control" readonly id="id" name="id" value="{{ record.project_id }}"></input>
+                <input type="text" class="form-control" readonly id="id" name="id" value="{{ info.project_id }}"></input>
               </div>
             </div>
 
             <div class="mb-3">
               <label for="title" class="form-label">Title</label>
-              <input type="text" class="form-control" readonly id="title" name="title" value="{{ record.title }}"></input>
+              <input type="text" class="form-control" readonly id="title" name="title" value="{{ info.title }}"></input>
             </div>
 
             <div class="mb-3">
               <label for="version" class="form-label">Version</label>
-              <input type="text" class="form-control" readonly id="version" name="version" value="{{ record.version }}"></input>
+              <input type="text" class="form-control" readonly id="version" name="version" value="{{ info.version }}"></input>
             </div>
 
             <div class="mb-3">
@@ -127,7 +133,7 @@
 
           {% elif action == 'edit' %}
 
-          <form method="PATCH" action="{{ url_for('issue', username = username, project_id = record.project_id, issue_id = record.issue_id) }}">
+          <form method="POST" action="{{ url_for('issue', username = username, project_id = record.project_id, issue_id = record.issue_id, action = 'edited') }}">
             <div class="mb-3">
               <label for="id" class="form-label">ID:</label>
               <div class="input-group">

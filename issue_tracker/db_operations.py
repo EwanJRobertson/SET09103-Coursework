@@ -344,7 +344,7 @@ def new_issue(project_id, title, description, type_of_issue, version_introduced,
         FROM issues
         WHERE project_id == ?
         ;
-        """[project_id]):
+        """, [project_id]):
         issue_id += 1
     
     # function to get date from system
@@ -385,3 +385,67 @@ def get_issue(project_id, issue_id, username):
         ;
         """, [project_id, issue_id])
     return jsonify(record = json.dumps([dict(row) for row in query_results]))
+
+# edit issue
+def edit_issue(project_id, issue_id, title, description, type_of_issue, version_introduced, username, priority_level, status):
+    # initalise connection
+    db = get_db()
+    cursor = db.cursor()
+
+    # check project id is an integer
+    try:
+        project_id = int(project_id)
+    except:
+        return jsonify(response ='project ID must be an integer')
+
+    # check user is linked to project
+    if cursor.execute("""
+        SELECT 1
+        FROM users_projects_link
+        WHERE username == ?
+            AND project_id == ?
+        ;
+        """, [username, project_id]) is None:
+        return jsonify(response ='user is not on this project')
+
+    # check issue id is an integer
+    try:
+        issue_id = int(issue_id)
+    except:
+        return jsonify(response ='issue ID must be an integer')
+
+    try:
+        priority_level = int(priority_level)
+    except:
+        return False
+
+    # check issue exists
+    if cursor.execute("""
+        SELECT 1
+        FROM issues
+        WHERE project_id == ?
+            AND issue_id == ?
+        ;
+        """, [project_id, issue_id]).fetchall is []:
+        return jsonify(response ='issue does not exist')
+
+    # function to get date from system
+    from datetime import datetime
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    # update issue
+    cursor.execute("""
+        UPDATE issues
+        SET title = ?
+            , description = ?
+            , type_of_issue = ?
+            , date_last_updated = ?
+            , version_introduced = ?
+            , username = ?
+            , priority_level = ?
+            , status = ?
+        WHERE project_id == ?
+            AND issue_id == ?
+        ;
+        """, [title, description, type_of_issue, date, version_introduced, username, priority_level, status, project_id, issue_id])
+    db.commit()

@@ -41,7 +41,11 @@
       <div class="row mb-4">
         <div class="col-6">
           <div class="bg-light border border-1 border-info rounded-3 p-2">
+	  {% if type == 'projects' %}
             <form action="{{ url_for('projects', username = username) }}" method="GET">
+	  {% else %}
+	    <form action="{{ url_for('project', username = username, project_id = project_id) }}" method="GET">
+	  {% endif %}
               <div class="row">
                 <div class="col-8">
                   <input type="text" class="form-control my-3"  name="q" placeholder="Search">
