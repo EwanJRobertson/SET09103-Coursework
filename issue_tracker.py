@@ -159,12 +159,10 @@ def project(username, project_id):
             version_introduced = request.form['version_introduced']
             assigned_user = request.form['username']
             priority_level = request.form['priority_level']
-            status = request.form['status']
-            db_operations.new_issue(project_id, title, description, type_of_issue, version_introduced, assigned_user, priority_level, status)
+            db_operations.new_issue(project_id, title, description, type_of_issue, version_introduced, assigned_user, priority_level)
             return redirect(url_for('project', username = username, project_id = project_id))
     
     elif request.method == 'PATCH':
-        db_operations.edit_project(project_id, title, version)
         return redirect(url_for('project', username = username, project_id = project_id))
     
     else:

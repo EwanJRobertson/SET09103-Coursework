@@ -17,60 +17,95 @@
 
 <body class="">
 
-    <header class="bg-dark text-white p-2">
+    <header class="bg-dark">
       <div class="container">
-        <h1>{{ username }}</h1>
+        <h1 class="display-5 fw-bold text-white">{{ username }}</h1>
       </div>
-      <nav class="navbar navbar-default">
-        <div class="container-fluid bg-light">
-          <ul class="nav navbar-nav list-group list-group-horizontal p-2">
-            <li><a href="{{ url_for('login') }}" class="link">Login</a></li>
-            <li><a href="{{ url_for('user', username = username) }}" class="link">{{ username }}</a></li>
+      <nav class="navbar navbar-default border-bottom border-5 border-info text-light">
+        <div class="container">
+          <ul class="nav navbar-nav list-group list-group-horizontal">
+            <li class="px-2"><a href="{{ url_for('login') }}" class="link">Login</a></li>
+            <li class="px-2"><a href="{{ url_for('user', username = username) }}" class="link">{{ username }}</a></li>
             {% if type == 'issue' %}
-            <li class="active"><a href="{{ url_for('project', username = username, project_id = project_id) }}" class="link">Project</a></li>
+            <li class="px-2 active"><a href="{{ url_for('project', username = username, project_id = project_id) }}" class="link">Project</a></li>
             {% endif %}
           </ul>
         </div>
       </nav>
     </header>
 
-    <main class="container p-2">
+    <main class="container py-3">
 
-      {% if type == 'issue' and action == 'view' %}
-      <div class="pb-3">
-        <a class="btn btn-outline-primary mx-4"
-                  href="{{ url_for('project', username = username, project_id = project_id, issue_id = record.issue_id, action = 'edit') }}">Edit Issue</a>
-      </div>
-      {% endif %}
-
-      <div class="py-2" style="outline-style:solid; border-radius:0.5pc;">
+      <div class="bg-light border border-1 border-info rounded-3 p-2">
         {% if type == 'project' %}
 
           {% if action == 'edit' %}
-            
           <form method="PATCH" action="{{ url_for('project', username = username, project_id = record.project_id) }}">
-            ID: #<input type="text" readonly>{{ record.project_id }}</input>
-            <input name="title" type="text">{{ record.title }}</input>
-            <input name="version" type="text">{{ record.version }}</input>
-            <input type="submit">
+            <div class="mb-3">
+              <label for="id" class="form-label">ID:</label>
+              <div class="input-group">
+                <div class="input-group-text">#</div>
+                <input type="text" class="form-control" readonly id="id" name="id" value="{{ record.project_id }}"></input>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="title" class="form-label">Title</label>
+              <input type="text" class="form-control" id="title" name="title" value="{{ record.title }}"></input>
+            </div>
+
+            <div class="mb-3">
+              <label for="version" class="form-label">Version</label>
+              <input type="text" class="form-control" id="version" name="version" value="{{ record.version }}"></input>
+            </div>
+
+            <button type="submit" class="btn btn-primary mb-3">Submit</button>
           </form>
 
           {% elif action == 'assign' %}
 
-	        <form method="POST" action="{{ url_for('project', username = username, project_id = info.project_id, action = 'assign') }}">
-	          <p>ID: #{{ info.project_id }}</p>
-  	        <p>{{ info.title }}</p>
-	          <p>{{ info.version }}</p>
-  	        <input type="text" name="username"></input>
-	          <input type="submit"></input>
-  	      </form>
+          <form method="POST" action="{{ url_for('project', username = username, project_id = info.project_id, action = 'assign') }}">
+            <div class="mb-3">
+              <label for="id" class="form-label">ID:</label>
+              <div class="input-group">
+                <div class="input-group-text">#</div>
+                <input type="text" class="form-control" readonly id="id" name="id" value="{{ record.project_id }}"></input>
+              </div>
+            </div>
 
-	        {% else %}
+            <div class="mb-3">
+              <label for="title" class="form-label">Title</label>
+              <input type="text" class="form-control" readonly id="title" name="title" value="{{ record.title }}"></input>
+            </div>
+
+            <div class="mb-3">
+              <label for="version" class="form-label">Version</label>
+              <input type="text" class="form-control" readonly id="version" name="version" value="{{ record.version }}"></input>
+            </div>
+
+            <div class="mb-3">
+              <label for="username" class="form-label">Username</label>
+              <input type="text" class="form-control" id="username" name="username"></input>
+            </div>
+
+            <button type="submit" class="btn btn-primary mb-3">Submit</button>
+          </form>
+
+    	    {% else %}
 
           <form method="POST" action="{{ url_for('projects', username = username) }}">
-            <input name="title" type="text" placeholder="Title">
-            <input name="version" type="text" placeholder="Version">
-            <input type="submit">
+            <div class="mb-3">
+              <label for="title" class="form-label">Title</label>
+              <input type="text" class="form-control" id="title" name="title"></input>
+            </div>
+
+            <div class="mb-3">
+              <label for="version" class="form-label">Version</label>
+              <input type="text" class="form-control" id="version" name="version"></input>
+            </div>
+
+            <button type="submit" class="btn btn-primary mb-3">Submit</button>
+
           </form>
 
           {% endif %}
@@ -78,52 +113,112 @@
 	      {% else %}
 
           {% if action == 'view' %}
-
-          <h3>{{ record.title }}</h3>
-          ID: #{{ record.issue_id }}
-          {{ record.description }}
-          {{ record.type_of_issue }}
-          {{ record.date_last_updated }}
-          {{ record.version_introduced }}
-          {{ record.username }}
-          {{ record.priority_level }}
-          {{ record.status }}
+          <ul  class="list-group list-group-flush">
+            <li class="list-group-item display-6 fw-bold">{{ record.title }}</li>
+            <li class="list-group-item">ID: #{{ record.issue_id }}</li>
+            <li class="list-group-item">{{ record.description }}</li>
+            <li class="list-group-item">{{ record.type_of_issue }}</li>
+            <li class="list-group-item">{{ record.date_last_updated }}</li>
+            <li class="list-group-item">{{ record.version_introduced }}</li>
+            <li class="list-group-item">{{ record.username }}</li>
+            <li class="list-group-item">{{ record.priority_level }}</li>
+            <li class="list-group-item">{{ record.status }}</li>
+          </ul>
 
           {% elif action == 'edit' %}
 
           <form method="PATCH" action="{{ url_for('issue', username = username, project_id = record.project_id, issue_id = record.issue_id) }}">
-            ID #<input type="text" readonly>{{ record.issue_id }}</input>
-            <input name="title" type="text">{{ record.title }}</input>
-            <input name="description" type="text">{{ record.description }}</input>
-            <input name="type_of_issue" type="text">{{ record.type_of_issue }}</input>
-            <input name="version_introduced" type="text">{{ record.version_introduced }}</input>
-            <input name="username" type="text">{{ record.username }}</input>
-            <input name="priority_level" type="text">{{ record.priority_level }}</input>
-            <select name="status">
-              <option value="backlog">Backlog</option>
-              <option value="to do">To Do</option>
-              <option value="in progress">In Progress</option>
-              <option value="in review">In Review</option>
-              <option value="done">Done</option>
-            </select>
-            <input type="submit">
+            <div class="mb-3">
+              <label for="id" class="form-label">ID:</label>
+              <div class="input-group">
+                <div class="input-group-text">#</div>
+                <input type="text" class="form-control" readonly id="id" name="id" value="{{ record.issue_id }}"></input>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="title" class="form-label">Title</label>
+              <input type="text" class="form-control" id="title" name="title" value="{{ record.title }}"></input>
+            </div>
+
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              <input type="text" class="form-control" id="description" name="description" value="{{ record.description }}"></input>
+            </div>
+
+            <div class="mb-3">
+              <label for="type_of_issue" class="form-label">Type of Issue</label>
+              <input type="text" class="form-control" id="type_of_issue" name="type_of_issue" value="{{ record.type_of_issue }}"></input>
+            </div>
+
+            <div class="mb-3">
+              <label for="version_introduced" class="form-label">Version introduced</label>
+              <input type="text" class="form-control" id="version_introduced" name="version_introduced" value="{{ record.version_introduced }}"></input>
+            </div>
+
+            <div class="mb-3">
+              <label for="username" class="form-label">Username</label>
+              <input type="text" class="form-control" id="username" name="username" value="{{ record.username }}"></input>
+            </div>
+
+            <div class="mb-3">
+              <label for="priority_level" class="form-label">Priority</label>
+              <input type="text" class="form-control" id="priority_level" name="priority_level" placeholder="integer" value="{{ record.priority_level }}"></input>
+            </div>
+
+            <div class="mb-3">
+              <label for="status" class="form-label">Status</label>
+
+              <select class="form-select" name="status" id="status" value="{{ record.status }}">
+                <option value="backlog">Backlog</option>
+                <option value="to do">To Do</option>
+                <option value="in progress">In Progress</option>
+                <option value="in review">In Review</option>
+                <option value="done">Done</option>
+              </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary mb-3">Submit</button>
           </form>
 
           {% else %}
 
           <form method="POST" action="{{ url_for('project', username = username, project_id = project_id) }}">
-            <input name="title" type="text" placeholder="Title"></input>
-            <input name="description" type="text" placeholder="Description">
-            <input name="type_of_issue" type="text" placeholder="Type of Issue">
-            <input name="version_introduced" type="text" placeholder="Version Introduced">
-            <input name="username" type="text" placeholder="User">
-            <input name="priority_level" type="text" placeholder="Priority (integer)">
-            <input name="status" type="text" placeholder="Status">
-            <input type="submit">
+
+            <div class="mb-3">
+              <label for="title" class="form-label">Title</label>
+              <input type="text" class="form-control" id="title"></input>
+            </div>
+
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              <input type="text" class="form-control" id="description"></input>
+            </div>
+
+            <div class="mb-3">
+              <label for="type_of_issue" class="form-label">Type of Issue</label>
+              <input type="text" class="form-control" id="type_of_issue"></input>
+            </div>
+
+            <div class="mb-3">
+              <label for="version_introduced" class="form-label">Version introduced</label>
+              <input type="text" class="form-control" id="version_introduced"></input>
+            </div>
+
+            <div class="mb-3">
+              <label for="username" class="form-label">Username</label>
+              <input type="text" class="form-control" id="username"></input>
+            </div>
+            
+            <div class="mb-3">
+              <label for="priority_level" class="form-label">Priority</label>
+              <input type="text" class="form-control" id="priority_level" placeholder="integer"></input>
+            </div>
+
+            <button type="submit" class="btn btn-primary mb-3">Submit</button>
           </form>
 
 	  {% endif %}
-	
 	{% endif %}
       </div>
 
