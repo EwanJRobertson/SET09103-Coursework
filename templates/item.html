@@ -36,6 +36,12 @@
 
     <main class="container p-2">
 
+      {% if type == 'issue' and action == 'view' %}
+      <div class="pb-3">
+        <a class="btn btn-outline-primary mx-4"
+                  href="{{ url_for('project', username = username, project_id = project_id, issue_id = record.issue_id, action = 'edit') }}">Edit Issue</a>
+      </div>
+
       <div class="py-2" style="outline-style:solid; border-radius:0.5pc;">
         {% if type == 'project' %}
 
@@ -50,15 +56,15 @@
 
           {% elif action == 'assign' %}
 
-	  <form method="POST" action="{{ url_for('project', username = username, project_id = info.project_id, action = 'assign') }}">
-	    <p>ID: #{{ info.project_id }}</p>
-	    <p>{{ info.title }}</p>
-	    <p>{{ info.version }}</p>
-	    <input type="text" name="username"></input>
-	    <input type="submit"></input>
-	  </form>
+	        <form method="POST" action="{{ url_for('project', username = username, project_id = info.project_id, action = 'assign') }}">
+	          <p>ID: #{{ info.project_id }}</p>
+  	        <p>{{ info.title }}</p>
+	          <p>{{ info.version }}</p>
+  	        <input type="text" name="username"></input>
+	          <input type="submit"></input>
+  	      </form>
 
-	  {% else %}
+	        {% else %}
 
           <form method="POST" action="{{ url_for('projects', username = username) }}">
             <input name="title" type="text" placeholder="Title">
@@ -68,7 +74,7 @@
 
           {% endif %}
            
-	{% else %}
+	      {% else %}
 
           {% if action == 'view' %}
 

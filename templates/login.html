@@ -15,39 +15,47 @@
 
 </head>
 
-<body class="">
+<body>
 
-    <header class="bg-dark text-white p-2">
+    <header class="bg-dark">
       <div class="container">
-        <h1>{{ type }}</h1>
+        <h1 class="display-5 fw-bold text-white">{{ type }}</h1>
       </div>
-      <nav class="navbar navbar-default">
-        <div class="container-fluid bg-light">
-          <ul class="nav navbar-nav list-group list-group-horizontal p-2">
-            <li><a href="{{ url_for('login') }}" class="link">Login</a></li>
+      <nav class="navbar navbar-default border-bottom border-5 border-info">
+        <div class="container">
+          <ul class="nav navbar-nav list-group list-group-horizontal">
+            <li class="px-2"><a href="{{ url_for('login') }}" class="link text-light">Login</a></li>
           </ul>
         </div>
       </nav>
     </header>
 
-    <main class="container p-2">
-      {% if type == 'login' %}
-      <form method="POST" action="{{ url_for('login') }}">
-      {% elif type == 'new user' %}
-      <form method="POST" action="{{ url_for('new_user') }}">
-      {% else %}
-      <form method="POST" action="{{ url_for('username', username = username) }}">
-      {% endif %}
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="password" name="password" placeholder="Password" required>
-        {% if type == 'change password' %}
-        <input type="password" name="new_password" placeholder="New Password" required>
-        {% endif %}
-        <input type="submit">
-      </form>
-      {% if type == 'login' %}
-      <a href="./new-user" class="btn btn-light py-2">New User</a>
-      {% endif %}
+    <main class="container py-3">
+      <div class="row">
+        <div class="col-6">
+          {% if type == 'login' %}
+          <form method="POST" action="{{ url_for('login') }}">
+          {% elif type == 'new user' %}
+          <form method="POST" action="{{ url_for('new_user') }}">
+          {% else %}
+          <form method="POST" action="{{ url_for('username', username = username) }}">
+          {% endif %}
+
+            <input type="text" name="username" placeholder="Username" class="form-control mb-3" required>
+
+            <input type="password" name="password" placeholder="Password" class="form-control mb-3" required>
+
+            {% if type == 'change password' %}
+            <input type="password" name="new_password" placeholder="Confirm Password" class="form-control mb-3" required>
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary mb-3">Login</button>
+          </form>
+          {% if type == 'login' %}
+          <a href="./new-user" class="btn btn-link mb-3">New User</a>
+          {% endif %}
+        </div>
+      </div>
     </main>
 
     <footer class="container">
